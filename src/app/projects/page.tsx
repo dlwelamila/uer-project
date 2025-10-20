@@ -202,7 +202,7 @@ export default function ProjectsPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span
-                        className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${statusChipStyles[item.status]}`}
+                        className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${statusChipStyles[item.status as Status]}`}
                       >
                         {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
                       </span>
