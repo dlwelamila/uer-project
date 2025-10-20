@@ -1622,7 +1622,7 @@ const persistMajorIncidents = useCallback(async () => {
       {step === 0 && (
         <Section title="Step 1 - Top 5 Products" evidenceKey="01_Top5" engagementId={engagementId}>
           <p className="mb-3 text-sm text-slate-600">
-            Ask the customer to open MS360 -> SRs by Product (last 12 months). Enter the table below and upload
+            Ask the customer to open MS360 {'->'} SRs by Product (last 12 months). Enter the table below and upload
             screenshots on the right.
           </p>
           <TopFiveForm value={topProducts} onChange={setTopProducts} />
