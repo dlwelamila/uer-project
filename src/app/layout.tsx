@@ -1,6 +1,7 @@
 import './globals.css'
 import { NavLink } from '@/components/NavLink'
 import { SupportCenterMenu } from '@/components/SupportCenterMenu'
+import { ProjectsMenu } from '@/components/ProjectsMenu'
 
 export const metadata = { title: 'Unified Enterprise Report (UER)' }
 
@@ -14,8 +15,45 @@ const SUPPORT_CENTER_LINKS = [
   { href: '/sessions/new', label: 'New Session' },
 ]
 
+const PROJECT_MENU_LINKS = [
+  {
+    href: '/projects',
+    label: 'Projects Overview',
+    description: 'Portfolio highlights, KPIs, and executive view.',
+  },
+  {
+    href: '/projects/account-managers',
+    label: 'Account Managers',
+    description: 'Manage ownership, contact details, and coverage.',
+  },
+  {
+    href: '/projects/portfolio-highlights',
+    label: 'Portfolio Highlights',
+    description: 'Curate portfolio wins, blockers, and open follow-ups.',
+  },
+  {
+    href: '/projects/project-pipeline',
+    label: 'Project Pipeline',
+    description: 'Create, update, and close project engagements.',
+  },
+  {
+    href: '/projects/account-portfolio-health',
+    label: 'Account Portfolio Health',
+    description: 'Track account metadata and readiness.',
+  },
+  {
+    href: '/projects/task-pipeline',
+    label: 'Task Pipeline',
+    description: 'Plan and execute project deliverables.',
+  },
+  {
+    href: '/projects/account-manager-coverage',
+    label: 'Account Manager Coverage',
+    description: 'Assign accounts and balance portfolio load.',
+  },
+]
+
 const SECONDARY_NAV = [
-  { href: '/projects', label: 'Projects' },
   { href: '/competency', label: 'Competency' },
   { href: '/finance', label: 'Finance' },
   { href: '/sales-marketing', label: 'Sales & Marketing' },
@@ -34,6 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <HomeGlyph />
               </NavLink>
               <SupportCenterMenu items={SUPPORT_CENTER_LINKS} />
+              <ProjectsMenu items={PROJECT_MENU_LINKS} />
               {SECONDARY_NAV.map((item) => (
                 <NavLink key={item.href} href={item.href} classNameOverride="secondary-nav">
                   {item.label}
