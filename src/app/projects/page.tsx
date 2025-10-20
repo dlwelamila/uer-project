@@ -100,56 +100,56 @@ const statusChipStyles: Record<Status, string> = {
 
 export default function ProjectsPage() {
   return (
-    <div className="space-y-12">
-      <header className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#111b2e] via-[#0a1323] to-[#050912] text-slate-100 shadow-xl ring-1 ring-slate-800/50">
+    <div className="space-y-8 pb-12 md:space-y-12">
+      <header className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#111b2e] via-[#0a1323] to-[#050912] text-slate-100 shadow-xl ring-1 ring-slate-800/50 md:rounded-3xl">
         <div className="absolute -left-10 top-10 h-40 w-40 rounded-full bg-sky-500/20 blur-3xl" />
         <div className="absolute -right-6 -top-16 h-48 w-48 rounded-full bg-emerald-500/20 blur-3xl" />
-        <div className="relative flex flex-col gap-8 px-6 py-10 sm:px-10 lg:flex-row lg:items-center lg:justify-between lg:px-16">
-          <div className="max-w-2xl space-y-4">
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs font-semibold uppercase tracking-[0.32em] text-slate-200">
+        <div className="relative flex flex-col gap-6 px-5 py-8 sm:px-8 md:gap-8 md:px-10 md:py-10 lg:flex-row lg:items-center lg:justify-between lg:px-16">
+          <div className="max-w-2xl space-y-3 md:space-y-4">
+            <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-200 sm:px-4 sm:text-xs sm:tracking-[0.32em]">
               Projects Portfolio
             </p>
-            <h1 className="text-3xl font-semibold text-white sm:text-4xl lg:text-5xl">
+            <h1 className="text-2xl font-semibold leading-tight text-white sm:text-3xl md:text-4xl lg:text-5xl">
               Keep customer projects aligned, visible, and on track.
             </h1>
-            <p className="text-base text-slate-300 sm:text-lg">
+            <p className="text-sm leading-relaxed text-slate-300 sm:text-base md:text-lg">
               View every initiative across accounts, understand momentum at a glance, and focus your team on the next
               critical milestone.
             </p>
           </div>
-          <div className="flex shrink-0 flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 px-6 py-5 text-sm text-slate-200 shadow-lg shadow-sky-900/10 sm:flex-row sm:items-center sm:gap-6">
+          <div className="flex shrink-0 flex-col gap-3 rounded-xl border border-white/10 bg-white/5 px-5 py-4 text-sm text-slate-200 shadow-lg shadow-sky-900/10 sm:flex-row sm:items-center sm:gap-6 md:rounded-2xl md:px-6 md:py-5 lg:flex-col lg:gap-3">
             <div>
-              <span className="block text-xs uppercase tracking-[0.3em] text-sky-300/90">Next review</span>
-              <span className="text-lg font-semibold text-white">Executive sync · 28 Oct</span>
+              <span className="block text-[10px] uppercase tracking-[0.26em] text-sky-300/90 sm:text-xs sm:tracking-[0.3em]">Next review</span>
+              <span className="text-base font-semibold text-white sm:text-lg">Executive sync · 28 Oct</span>
             </div>
-            <div className="h-12 w-px bg-white/10 sm:h-10 sm:w-px" />
+            <div className="hidden h-px w-full bg-white/10 sm:block sm:h-10 sm:w-px lg:h-px lg:w-full" />
             <div>
-              <span className="block text-xs uppercase tracking-[0.3em] text-slate-300/80">Owners</span>
-              <span className="text-lg font-semibold text-white">5 Account Managers</span>
+              <span className="block text-[10px] uppercase tracking-[0.26em] text-slate-300/80 sm:text-xs sm:tracking-[0.3em]">Owners</span>
+              <span className="text-base font-semibold text-white sm:text-lg">5 Account Managers</span>
             </div>
           </div>
         </div>
       </header>
 
       <section>
-        <h2 className="text-lg font-semibold text-slate-900">Portfolio highlights</h2>
-        <p className="mt-1 text-sm text-slate-500">
+        <h2 className="text-base font-semibold text-slate-900 md:text-lg">Portfolio highlights</h2>
+        <p className="mt-1 text-xs text-slate-500 sm:text-sm">
           Quick metrics that frame overall load, velocity, and operational posture across the portfolio.
         </p>
-        <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 md:mt-6 md:gap-5 xl:grid-cols-4">
           {summaryCards.map((card) => (
             <div
               key={card.title}
-              className={`group relative overflow-hidden rounded-2xl border bg-gradient-to-br ${card.accent} p-6 shadow-lg transition-transform hover:-translate-y-1`}
+              className={`group relative overflow-hidden rounded-xl border bg-gradient-to-br ${card.accent} p-5 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl md:rounded-2xl md:p-6`}
             >
-              <div className="absolute inset-0 bg-white/5 opacity-0 transition group-hover:opacity-10" />
+              <div className="absolute inset-0 bg-white/5 opacity-0 transition-opacity duration-300 group-hover:opacity-10" />
               <div className="relative flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-wide text-white/70">{card.title}</p>
-                  <p className="mt-4 text-3xl font-semibold text-white">{card.value}</p>
-                  <p className="mt-2 text-sm text-white/70">{card.description}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-white/70 sm:text-sm">{card.title}</p>
+                  <p className="mt-3 text-2xl font-semibold text-white sm:text-3xl md:mt-4">{card.value}</p>
+                  <p className="mt-2 text-xs leading-relaxed text-white/70 sm:text-sm">{card.description}</p>
                 </div>
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black/10 text-sm font-semibold tracking-wide text-white/80">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black/10 text-xs font-semibold tracking-wide text-white/80 sm:h-12 sm:w-12 sm:rounded-2xl sm:text-sm">
                   {card.monogram}
                 </span>
               </div>
@@ -158,56 +158,56 @@ export default function ProjectsPage() {
         </div>
       </section>
 
-      <section className="space-y-6">
-        <div className="flex flex-wrap items-end justify-between gap-4">
+      <section className="space-y-4 md:space-y-6">
+        <div className="flex flex-wrap items-end justify-between gap-3 md:gap-4">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">Project pipeline</h2>
-            <p className="text-sm text-slate-500">In-flight work with accountable owners, milestones, and target dates.</p>
+            <h2 className="text-base font-semibold text-slate-900 md:text-lg">Project pipeline</h2>
+            <p className="text-xs text-slate-500 sm:text-sm">In-flight work with accountable owners, milestones, and target dates.</p>
           </div>
           <div className="flex items-center gap-3">
-            <span className="rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-500">
+            <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-medium text-slate-500 sm:px-3 sm:text-xs">
               Updated 2h ago
             </span>
           </div>
         </div>
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg">
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg md:rounded-2xl">
           <div className="table-wrap">
             <table className="min-w-full divide-y divide-slate-200">
               <thead className="bg-slate-50">
-                <tr className="text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  <th className="px-6 py-3">Account Manager</th>
-                  <th className="px-6 py-3">Account</th>
-                  <th className="px-6 py-3">Project</th>
-                  <th className="px-6 py-3">Milestone</th>
-                  <th className="px-6 py-3">Status</th>
-                  <th className="px-6 py-3">Timeline</th>
+                <tr className="text-left text-[10px] font-semibold uppercase tracking-wide text-slate-500 sm:text-xs">
+                  <th className="px-3 py-2.5 sm:px-4 md:px-6 md:py-3">Account Manager</th>
+                  <th className="px-3 py-2.5 sm:px-4 md:px-6 md:py-3">Account</th>
+                  <th className="px-3 py-2.5 sm:px-4 md:px-6 md:py-3">Project</th>
+                  <th className="px-3 py-2.5 sm:px-4 md:px-6 md:py-3">Milestone</th>
+                  <th className="px-3 py-2.5 sm:px-4 md:px-6 md:py-3">Status</th>
+                  <th className="px-3 py-2.5 sm:px-4 md:px-6 md:py-3">Timeline</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-sm text-slate-600">
+              <tbody className="divide-y divide-slate-100 text-xs text-slate-600 sm:text-sm">
                 {projectPipeline.map((item) => (
-                  <tr key={`${item.manager}-${item.project}`} className="hover:bg-slate-50/60">
-                    <td className="px-6 py-4 font-medium text-slate-900">{item.manager}</td>
-                    <td className="px-6 py-4">{item.account}</td>
-                    <td className="px-6 py-4">{item.project}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex min-w-[180px] flex-col gap-2">
-                        <div className="h-2 rounded-full bg-slate-200/70">
+                  <tr key={`${item.manager}-${item.project}`} className="transition-colors hover:bg-slate-50/60">
+                    <td className="px-3 py-3 font-medium text-slate-900 sm:px-4 md:px-6 md:py-4">{item.manager}</td>
+                    <td className="px-3 py-3 sm:px-4 md:px-6 md:py-4">{item.account}</td>
+                    <td className="px-3 py-3 sm:px-4 md:px-6 md:py-4">{item.project}</td>
+                    <td className="px-3 py-3 sm:px-4 md:px-6 md:py-4">
+                      <div className="flex min-w-[120px] flex-col gap-1.5 sm:min-w-[140px] md:min-w-[180px] md:gap-2">
+                        <div className="h-1.5 rounded-full bg-slate-200/70 md:h-2">
                           <div
-                            className="h-2 rounded-full bg-gradient-to-r from-sky-500 via-sky-400 to-emerald-400"
+                            className="h-1.5 rounded-full bg-gradient-to-r from-sky-500 via-sky-400 to-emerald-400 transition-all duration-500 md:h-2"
                             style={{ width: `${item.progress}%` }}
                           />
                         </div>
-                        <span className="text-xs font-medium text-slate-500">{item.progress}%</span>
+                        <span className="text-[10px] font-medium text-slate-500 sm:text-xs">{item.progress}%</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-3 sm:px-4 md:px-6 md:py-4">
                       <span
-                        className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${statusChipStyles[item.status as Status]}`}
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold sm:px-2.5 sm:py-1 sm:text-xs md:px-3 ${statusChipStyles[item.status as Status]}`}
                       >
                         {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 font-medium text-slate-900">{item.due}</td>
+                    <td className="px-3 py-3 font-medium text-slate-900 sm:px-4 md:px-6 md:py-4">{item.due}</td>
                   </tr>
                 ))}
               </tbody>
@@ -216,36 +216,36 @@ export default function ProjectsPage() {
         </div>
       </section>
 
-      <section className="grid gap-8 xl:grid-cols-2">
-        <div className="space-y-5">
-          <header className="flex items-start justify-between gap-4">
+      <section className="grid gap-6 md:gap-8 xl:grid-cols-2">
+        <div className="space-y-4 md:space-y-5">
+          <header className="flex items-start justify-between gap-3 md:gap-4">
             <div>
-              <h3 className="text-lg font-semibold text-slate-900">Account portfolio health</h3>
-              <p className="mt-1 text-sm text-slate-500">
+              <h3 className="text-base font-semibold text-slate-900 md:text-lg">Account portfolio health</h3>
+              <p className="mt-1 text-xs text-slate-500 sm:text-sm">
                 Completed, ongoing, and upcoming projects across each strategic customer.
               </p>
             </div>
-            <span className="rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-500">FY25</span>
+            <span className="shrink-0 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-medium text-slate-500 sm:px-3 sm:text-xs">FY25</span>
           </header>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg">
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg md:rounded-2xl">
             <div className="table-wrap">
-              <table className="min-w-full text-sm text-slate-600">
-                <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <table className="min-w-full text-xs text-slate-600 sm:text-sm">
+                <thead className="bg-slate-50 text-[10px] font-semibold uppercase tracking-wide text-slate-500 sm:text-xs">
                   <tr>
-                    <th className="px-6 py-3 text-left">Account</th>
-                    <th className="px-6 py-3 text-left">Completed</th>
-                    <th className="px-6 py-3 text-left">Ongoing</th>
-                    <th className="px-6 py-3 text-left">Upcoming</th>
+                    <th className="px-3 py-2.5 text-left sm:px-4 md:px-6 md:py-3">Account</th>
+                    <th className="px-3 py-2.5 text-left sm:px-4 md:px-6 md:py-3">Completed</th>
+                    <th className="px-3 py-2.5 text-left sm:px-4 md:px-6 md:py-3">Ongoing</th>
+                    <th className="px-3 py-2.5 text-left sm:px-4 md:px-6 md:py-3">Upcoming</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {portfolioHealth.map((row) => (
-                    <tr key={row.account} className="hover:bg-slate-50/60">
-                      <td className="px-6 py-4 font-medium text-slate-900">{row.account}</td>
-                      <td className="px-6 py-4">{row.completed}</td>
-                      <td className="px-6 py-4">{row.ongoing}</td>
-                      <td className="px-6 py-4">{row.upcoming}</td>
+                    <tr key={row.account} className="transition-colors hover:bg-slate-50/60">
+                      <td className="px-3 py-3 font-medium text-slate-900 sm:px-4 md:px-6 md:py-4">{row.account}</td>
+                      <td className="px-3 py-3 sm:px-4 md:px-6 md:py-4">{row.completed}</td>
+                      <td className="px-3 py-3 sm:px-4 md:px-6 md:py-4">{row.ongoing}</td>
+                      <td className="px-3 py-3 sm:px-4 md:px-6 md:py-4">{row.upcoming}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -254,39 +254,39 @@ export default function ProjectsPage() {
           </div>
         </div>
 
-        <div className="space-y-5">
-          <header className="flex items-start justify-between gap-4">
+        <div className="space-y-4 md:space-y-5">
+          <header className="flex items-start justify-between gap-3 md:gap-4">
             <div>
-              <h3 className="text-lg font-semibold text-slate-900">Task pipeline</h3>
-              <p className="mt-1 text-sm text-slate-500">
+              <h3 className="text-base font-semibold text-slate-900 md:text-lg">Task pipeline</h3>
+              <p className="mt-1 text-xs text-slate-500 sm:text-sm">
                 Scope, progress, and target dates for project tasks still in execution.
               </p>
             </div>
-            <span className="rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-500">
+            <span className="shrink-0 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-medium text-slate-500 sm:px-3 sm:text-xs">
               Workflow
             </span>
           </header>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg">
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg md:rounded-2xl">
             <div className="table-wrap">
-              <table className="min-w-full text-sm text-slate-600">
-                <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <table className="min-w-full text-xs text-slate-600 sm:text-sm">
+                <thead className="bg-slate-50 text-[10px] font-semibold uppercase tracking-wide text-slate-500 sm:text-xs">
                   <tr>
-                    <th className="px-6 py-3 text-left">Account</th>
-                    <th className="px-6 py-3 text-left">Task scope</th>
-                    <th className="px-6 py-3 text-left">Ongoing</th>
-                    <th className="px-6 py-3 text-left">Completed</th>
-                    <th className="px-6 py-3 text-left">Timeline</th>
+                    <th className="px-3 py-2.5 text-left sm:px-4 md:px-6 md:py-3">Account</th>
+                    <th className="px-3 py-2.5 text-left sm:px-4 md:px-6 md:py-3">Task scope</th>
+                    <th className="px-3 py-2.5 text-left sm:px-4 md:px-6 md:py-3">Ongoing</th>
+                    <th className="px-3 py-2.5 text-left sm:px-4 md:px-6 md:py-3">Completed</th>
+                    <th className="px-3 py-2.5 text-left sm:px-4 md:px-6 md:py-3">Timeline</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {taskView.map((row) => (
-                    <tr key={row.account} className="hover:bg-slate-50/60">
-                      <td className="px-6 py-4 font-medium text-slate-900">{row.account}</td>
-                      <td className="px-6 py-4">{row.scope}</td>
-                      <td className="px-6 py-4">{row.ongoing}</td>
-                      <td className="px-6 py-4">{row.completed}</td>
-                      <td className="px-6 py-4">{row.timeline}</td>
+                    <tr key={row.account} className="transition-colors hover:bg-slate-50/60">
+                      <td className="px-3 py-3 font-medium text-slate-900 sm:px-4 md:px-6 md:py-4">{row.account}</td>
+                      <td className="px-3 py-3 sm:px-4 md:px-6 md:py-4">{row.scope}</td>
+                      <td className="px-3 py-3 sm:px-4 md:px-6 md:py-4">{row.ongoing}</td>
+                      <td className="px-3 py-3 sm:px-4 md:px-6 md:py-4">{row.completed}</td>
+                      <td className="px-3 py-3 sm:px-4 md:px-6 md:py-4">{row.timeline}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -296,43 +296,43 @@ export default function ProjectsPage() {
         </div>
       </section>
 
-      <section className="space-y-5">
-        <header className="flex flex-wrap items-center justify-between gap-4">
+      <section className="space-y-4 md:space-y-5">
+        <header className="flex flex-wrap items-center justify-between gap-3 md:gap-4">
           <div>
-            <h3 className="text-lg font-semibold text-slate-900">Account manager coverage</h3>
-            <p className="mt-1 text-sm text-slate-500">
+            <h3 className="text-base font-semibold text-slate-900 md:text-lg">Account manager coverage</h3>
+            <p className="mt-1 text-xs text-slate-500 sm:text-sm">
               Assurance that every account has a clear owner and share of voice in the portfolio.
             </p>
           </div>
           <button
             type="button"
-            className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-slate-300 hover:text-slate-900"
+            className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 sm:px-4 sm:py-2 sm:text-sm"
           >
             Export roster
           </button>
         </header>
 
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg">
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg md:rounded-2xl">
           <div className="table-wrap">
-            <table className="min-w-full text-sm text-slate-600">
-              <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <table className="min-w-full text-xs text-slate-600 sm:text-sm">
+              <thead className="bg-slate-50 text-[10px] font-semibold uppercase tracking-wide text-slate-500 sm:text-xs">
                 <tr>
-                  <th className="px-6 py-3 text-left">Account manager</th>
-                  <th className="px-6 py-3 text-left">Managed accounts</th>
-                  <th className="px-6 py-3 text-left">Accounts</th>
+                  <th className="px-3 py-2.5 text-left sm:px-4 md:px-6 md:py-3">Account manager</th>
+                  <th className="px-3 py-2.5 text-left sm:px-4 md:px-6 md:py-3">Managed accounts</th>
+                  <th className="px-3 py-2.5 text-left sm:px-4 md:px-6 md:py-3">Accounts</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {teamRoster.map((row) => (
-                  <tr key={row.manager} className="hover:bg-slate-50/60">
-                    <td className="px-6 py-4 font-medium text-slate-900">{row.manager}</td>
-                    <td className="px-6 py-4">{row.accounts}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-wrap gap-2 text-xs font-medium text-slate-500">
+                  <tr key={row.manager} className="transition-colors hover:bg-slate-50/60">
+                    <td className="px-3 py-3 font-medium text-slate-900 sm:px-4 md:px-6 md:py-4">{row.manager}</td>
+                    <td className="px-3 py-3 sm:px-4 md:px-6 md:py-4">{row.accounts}</td>
+                    <td className="px-3 py-3 sm:px-4 md:px-6 md:py-4">
+                      <div className="flex flex-wrap gap-1.5 text-[10px] font-medium text-slate-500 sm:gap-2 sm:text-xs">
                         {row.portfolio.map((account) => (
                           <span
                             key={account}
-                            className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-slate-600"
+                            className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-100 sm:px-2.5 sm:py-1 md:px-3"
                           >
                             {account}
                           </span>
@@ -347,26 +347,26 @@ export default function ProjectsPage() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-950 to-[#04070f] px-8 py-10 text-slate-100 shadow-xl">
+      <section className="relative overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-950 to-[#04070f] px-5 py-8 text-slate-100 shadow-xl sm:px-6 md:rounded-3xl md:px-8 md:py-10">
         <div className="absolute inset-x-10 -top-20 h-48 rounded-full bg-sky-500/30 blur-3xl" />
-        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-          <div className="max-w-2xl space-y-3">
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs font-semibold uppercase tracking-[0.38em] text-slate-200">
+        <div className="relative flex flex-col gap-5 md:gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="max-w-2xl space-y-2.5 md:space-y-3">
+            <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-slate-200 sm:px-4 sm:text-xs sm:tracking-[0.38em]">
               Next actions
             </p>
-            <h3 className="text-2xl font-semibold text-white sm:text-3xl">
+            <h3 className="text-xl font-semibold leading-tight text-white sm:text-2xl md:text-3xl">
               Prepare the FY25 roadmap briefing with proactive customer follow-ups.
             </h3>
-            <ul className="space-y-2 text-sm text-slate-300">
+            <ul className="space-y-1.5 text-xs leading-relaxed text-slate-300 sm:text-sm md:space-y-2">
               <li>- Confirm sign-off for VXLAN expansion runbook.</li>
               <li>- Align TRA Exadata team on resource coverage before August sprint.</li>
               <li>- Raise upcoming dependency risks for NEMC network upgrade.</li>
             </ul>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/10 px-6 py-5 text-center shadow-lg shadow-sky-900/20">
-            <p className="text-xs uppercase tracking-[0.35em] text-slate-200">Next sync</p>
-            <p className="mt-3 text-3xl font-semibold text-white">31 Oct 2025</p>
-            <p className="mt-1 text-sm text-slate-300">Regional delivery cadence</p>
+          <div className="rounded-xl border border-white/10 bg-white/10 px-5 py-4 text-center shadow-lg shadow-sky-900/20 md:rounded-2xl md:px-6 md:py-5">
+            <p className="text-[10px] uppercase tracking-[0.3em] text-slate-200 sm:text-xs sm:tracking-[0.35em]">Next sync</p>
+            <p className="mt-2 text-2xl font-semibold text-white sm:text-3xl md:mt-3">31 Oct 2025</p>
+            <p className="mt-1 text-xs text-slate-300 sm:text-sm">Regional delivery cadence</p>
           </div>
         </div>
       </section>
