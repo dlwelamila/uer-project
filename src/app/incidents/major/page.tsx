@@ -116,7 +116,7 @@ export default function MajorIncidentsPage() {
     const latest = incidents.reduce<Date | null>((acc, incident) => {
       const candidates = [incident.closedAt, incident.resolvedAt, incident.createdAt]
         .map((value) => (value ? new Date(`${value}T00:00:00Z`) : null))
-        .filter((date): date is Date => Boolean(date) && !Number.isNaN(date.getTime()))
+        .filter((date): date is Date => date !== null && !Number.isNaN(date.getTime()))
 
       const newest = candidates.reduce<Date | null>((prev, current) => {
         if (!prev) return current
