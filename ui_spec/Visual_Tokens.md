@@ -1,0 +1,1 @@
+Primary blue #0076CE; Dark blue #005A9E; Card border #DADDE1; Canvas #F5F6F8; S1 #E53935; S2 #FFC107; S3 #4CAF50; S5 #1976D2

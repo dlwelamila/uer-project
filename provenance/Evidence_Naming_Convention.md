@@ -1,0 +1,1 @@
+See standard naming format: ORG_ENV_PERIOD_SECTION_detail_YYYYMMDD_HHMM[_DETAIL][_REDACTED].png

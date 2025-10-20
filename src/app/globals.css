@@ -1,0 +1,227 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --layout-max-width: clamp(1280px, 92vw, 1600px);
+  --layout-padding-inline: clamp(20px, 4vw, 48px);
+}
+
+.site-shell {
+  width: min(var(--layout-max-width), 100%);
+  margin-inline: auto;
+  padding-inline: var(--layout-padding-inline);
+  max-width: clamp(1350px, 94vw, 1640px);
+}
+
+.site-main {
+  padding-block: clamp(16px, 3.5vh, 28px);
+}
+
+/* Ultra-wide monitors: slightly narrower visual width so cards stay “compact” */
+@media (min-width: 1600px) {
+  :root {
+    --layout-max-width: clamp(1400px, 92vw, 1680px);
+  }
+}
+
+/* Reusable utility: prevent awkward page breaks for cards/charts/sections */
+.avoid-break,
+.break-inside-avoid,
+.page-break-inside-avoid {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Soften default gaps a touch to keep all dashboard cards on one page more often */
+.compact-gap > * + * { margin-top: 0.5rem; }
+
+/* Tables & long content — never overflow the card */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+.word-wrap,
+.table-wrap table,
+.major-wrap {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* ----------------------------
+   Print styles (Dell PDF look)
+   ---------------------------- */
+@media print {
+  /* Page setup */
+  @page {
+    size: landscape;
+    margin: 12mm;
+  }
+
+  /* Exact colors for charts/gradients when needed */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Remove chrome / app-only UI */
+  header, nav, footer,
+  .site-nav, .no-print, .print-hide,
+  .btn, .button, .actions,
+  [role="dialog"], [data-radix-popper-content-wrapper],
+  .toast, .alert, .tooltip {
+    display: none !important;
+  }
+
+  /* Neutral page background */
+  html, body {
+    background: #fff !important;
+    color: #111 !important;
+  }
+
+  /* Remove shadows/outlines that muddy PDFs */
+  .shadow, .shadow-sm, .shadow-md, .shadow-lg,
+  .ring, .outline, .border-transparent {
+    box-shadow: none !important;
+  }
+
+  /* Keep borders crisp and subtle */
+  .border, .border-b, .border-t, .border-l, .border-r {
+    border-color: #D9DFE6 !important;
+  }
+
+  /* Expand main content edge-to-edge */
+  main { padding: 0 !important; }
+
+  /* Avoid printing URL after links */
+  a[href]:after { content: "" !important; }
+
+  /* Fix sticky/positioned headers in print */
+  .sticky, [style*="position: sticky"], [style*="position:fixed"] {
+    position: static !important;
+    top: auto !important;
+  }
+
+  /* NEVER truncate in print */
+  .truncate,
+  [class*="line-clamp"] {
+    overflow: visible !important;
+    text-overflow: unset !important;
+    white-space: normal !important;
+    -webkit-line-clamp: initial !important;
+    display: block !important;
+  }
+
+  /* Keep important blocks together (Major Incidents sections, cards, charts) */
+  section,
+  .card,
+  .incident-block,
+  .incident-row,
+  .chart,
+  .panel,
+  .avoid-break,
+  .break-inside-avoid,
+  .page-break-inside-avoid {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Repeat table headers on new pages (Major Incidents grid) */
+  table { width: 100% !important; border-collapse: collapse !important; }
+  thead { display: table-header-group !important; }
+  tfoot { display: table-footer-group !important; }
+
+  /* Normalize grid/gaps so rows don't split oddly */
+  .grid { gap: 8px !important; }
+  .gap-0, .gap-1, .gap-2, .gap-3, .gap-4 { gap: 8px !important; }
+
+  /* Images/SVG crispness */
+  img { max-width: 100% !important; }
+  svg { overflow: visible !important; }
+
+  /* Utility helpers you can add to elements */
+  .print-break-before { break-before: page !important; page-break-before: always !important; }
+  .print-break-after  { break-after: page !important;  page-break-after: always !important; }
+  .print-show         { display: block !important; }
+  .print-only         { display: block !important; }
+  .screen-only        { display: none !important; }
+
+  /* Shell: go full-bleed for print */
+  .site-shell         { width: 100% !important; padding-inline: 0 !important; }
+  .site-main          { padding-block: 0 !important; }
+}
+
+/* Screen ↔ print toggles */
+.print-only { display: none; }
+.screen-only { display: initial; }
+
+/* Optional: tiny tweak so the Incident "blue Key Notes" panel
+   looks good on screen but still prints with exact color */
+.key-notes-gradient {
+  background: linear-gradient(180deg,#cfe6fb 0%, #6aa5dd 100%);
+}
+
+/* ---------- Major Incidents table helpers ---------- */
+.major-grid {
+  table-layout: fixed;             /* prevents overflow/overlap */
+  border-color: #C9D1DB;
+}
+.major-grid thead th {
+  background: #EEF2F7;
+  color: #2F3B49;
+  font-weight: 600;
+}
+.major-grid th, .major-grid td {
+  border-right: 1px solid #C9D1DB;
+  vertical-align: top;
+}
+.major-grid th:last-child, .major-grid td:last-child {
+  border-right: none;
+}
+.major-label {
+  background: #F3F6FA;
+  color: #505E6B;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.major-wrap {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+@layer components {
+.incident-grid {
+  display: grid;
+  gap: clamp(16px, 2vw, 24px);
+}
+
+@media (min-width: 1024px) {
+  .incident-grid {
+    grid-template-columns: 300px minmax(0, 1fr) 360px;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      'left trend trend'
+      'left notes spare';
+    column-gap: clamp(24px, 3vw, 36px);
+    row-gap: clamp(20px, 3vh, 32px);
+  }
+
+  .incident-grid > .area-left {
+    grid-area: left;
+  }
+
+    .incident-grid > .area-trend {
+      grid-area: trend;
+    }
+
+    .incident-grid > .area-notes {
+      grid-area: notes;
+    }
+
+    .incident-grid > .area-spare {
+      grid-area: spare;
+    }
+  }
+}

@@ -1,0 +1,282 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/**
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Core org structure â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ */
+
+model Organization {
+  id           String        @id @default(cuid())
+  name         String        @unique
+  createdAt    DateTime      @default(now())
+  environments Environment[]
+  engagements  Engagement[]
+  contacts     Contact[]
+}
+
+model Environment {
+  id             String       @id @default(cuid())
+  name           String
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  systems        System[]
+}
+
+model Engagement {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  type           String // monthly/quarterly/annual
+  periodStart    DateTime
+  periodEnd      DateTime
+  status         String       @default("Draft")
+
+  sessions Session[]
+  notes    Note[]
+
+  // Summary widgets
+  channelStats ChannelStat[]
+  volumePoints VolumePoint[]
+  incidents    Incident[]
+
+  // Backref for evidence captured within this engagement
+  evidence Evidence[] @relation("EngagementEvidence")
+}
+
+model Session {
+  id           String     @id @default(cuid())
+  engagementId String
+  engagement   Engagement @relation(fields: [engagementId], references: [id])
+
+  medium      String // Zoom/Onsite
+  scheduledAt DateTime?
+  startedAt   DateTime?
+  endedAt     DateTime?
+  attendees   String?
+  notes       String?
+
+  // Backref via Evidence.sessionId
+  evidence Evidence[] @relation("SessionEvidence")
+}
+
+/**
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Provenance (evidence & extraction) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ */
+
+model Evidence {
+  id String @id @default(cuid())
+
+  // Always tie to an engagement
+  engagementId String
+  engagement   Engagement @relation("EngagementEvidence", fields: [engagementId], references: [id])
+
+  // Optionally tie to a specific session during that engagement
+  sessionId String?
+  session   Session? @relation("SessionEvidence", fields: [sessionId], references: [id])
+
+  sectionKey   String
+  filePath     String
+  originalName String
+  takenAt      DateTime?
+  takenBy      String?
+  environment  String? // HQ/DR/Prod
+  redaction    String? // original/redacted
+  extra        Json?
+
+  extractions Extraction[]
+  createdAt   DateTime     @default(now())
+}
+
+model Extraction {
+  id          String    @id @default(cuid())
+  evidenceId  String
+  evidence    Evidence  @relation(fields: [evidenceId], references: [id])
+  fieldKey    String
+  rawText     String?
+  parsedValue String?
+  confidence  Float?
+  verifiedBy  String?
+  verifiedAt  DateTime?
+}
+
+model Note {
+  id           String     @id @default(cuid())
+  engagementId String
+  engagement   Engagement @relation(fields: [engagementId], references: [id])
+  sectionKey   String
+  text         String
+  author       String?
+  createdAt    DateTime   @default(now())
+}
+
+/**
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Domain entities â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ */
+
+model ProductFamily {
+  id     String         @id @default(cuid())
+  name   String         @unique
+  models ProductModel[]
+}
+
+model ProductModel {
+  id       String        @id @default(cuid())
+  name     String
+  familyId String
+  family   ProductFamily @relation(fields: [familyId], references: [id])
+  systems  System[]
+}
+
+model System {
+  id            String        @id @default(cuid())
+  displayName   String
+  serial        String?
+  installedCode String?
+  status        String? // Good/Fair/Poor
+  environmentId String?
+  environment   Environment?  @relation(fields: [environmentId], references: [id])
+  modelId       String?
+  model         ProductModel? @relation(fields: [modelId], references: [id])
+
+  serviceRequests ServiceRequest[]
+  incidents       Incident[]
+  sparePartEvents SparePartEvent[] @relation("SystemSpareParts")
+}
+
+model ServiceRequest {
+  id        String    @id @default(cuid())
+  systemId  String?
+  system    System?   @relation(fields: [systemId], references: [id])
+  severity  Int // 1,2,3,5
+  channel   String // Web/Phone/Dial-Home/Connect Home/Chat/Email
+  createdAt DateTime
+  closedAt  DateTime?
+  status    String
+
+  // (No incidents[] here until we add a matching field on Incident)
+}
+
+model Incident {
+  id       String  @id @default(cuid())
+  engagementId String?
+  engagement   Engagement? @relation(fields: [engagementId], references: [id])
+
+  systemId String?
+  system   System? @relation(fields: [systemId], references: [id])
+  systemName     String?
+
+  codeLevel      String?
+  sn             String?
+  srNumber       String?
+  summary        String
+  createdAt      DateTime
+  resolvedAt     DateTime?
+  closedAt       DateTime?
+  status         String    @default("Open")
+  impact         String?
+  resolution     String?
+  recommendation String?
+
+  createdTs DateTime @default(now())
+  updatedTs DateTime @updatedAt
+}
+
+model SparePartEvent {
+  id       String   @id @default(cuid())
+  systemId String?
+  system   System?  @relation("SystemSpareParts", fields: [systemId], references: [id])
+  date     DateTime
+  srNumber String?
+  partType String
+  quantity Int      @default(1)
+  mode     String?
+  status   String?
+}
+
+model ChannelStat {
+  id           String     @id @default(cuid())
+  engagementId String
+  engagement   Engagement @relation(fields: [engagementId], references: [id])
+  channel      String
+  percent      Float
+}
+
+model VolumePoint {
+  id           String     @id @default(cuid())
+  engagementId String
+  engagement   Engagement @relation(fields: [engagementId], references: [id])
+  month        Int
+  year         Int
+  value        Int
+}
+
+model Gateway {
+  id               String    @id @default(cuid())
+  gatewayId        String
+  model            String?
+  version          String?
+  connectedDevices Int       @default(0)
+  lastContact      DateTime?
+  registered       DateTime?
+  clusterId        String?
+  clusterName      String?
+}
+
+model CodePolicyTrack {
+  id          String  @id @default(cuid())
+  systemModel String
+  assetCount  Int     @default(0)
+  x7Min       String?
+  x7Rec       String?
+  x7Latest    String?
+  x8Min       String?
+  x8Rec       String?
+  x8Latest    String?
+  installed   String?
+  marker      String? // O/M/R/L
+}
+
+model Contract {
+  id           String    @id @default(cuid())
+  product      String?
+  startDate    DateTime?
+  endDate      DateTime
+  statusBucket String // Active/Expiring 30/60/90/Expired
+}
+
+model Risk {
+  id          String  @id @default(cuid())
+  category    String
+  description String
+  priority    String // P1/P2/P3
+  probDU      String? // Yes/No
+  owner       String
+  status      String // Registered/In Progress/Closed
+  due         String?
+  mitigation  String?
+}
+
+model ActionItem {
+  id     String  @id @default(cuid())
+  action String
+  owner  String
+  status String // Registered/In Progress/Completed
+  due    String?
+  notes  String?
+}
+
+model Contact {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  name           String
+  role           String?
+  phone          String?
+  email          String?
+}
