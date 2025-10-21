@@ -161,6 +161,34 @@ export function PortfolioHighlightsClient({ projectOptions, caseStatuses }: Prop
     return Array.from(groups.entries())
   }, [records])
 
+  const statusCounts = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const record of records) {
+      counts.set(record.status, (counts.get(record.status) ?? 0) + 1)
+    }
+    return counts
+  }, [records])
+
+  const guidanceLines = records.length === 0
+    ? [
+        'Add a highlight when a project needs executive visibility.',
+        'Set the status to indicate whether action is pending or resolved.',
+        'Capture opened and resolved dates to build a response timeline.',
+      ]
+    : [
+        statusCounts.size > 0
+          ? [...statusCounts.entries()]
+              .map(([status, count]) => `${count} highlight${count === 1 ? '' : 's'} marked ${status.toLowerCase()}.`)
+              .join(' ')
+          : 'Highlights created, status mix pending.',
+        groupedByAccount.length > 1
+          ? `Coverage spans ${groupedByAccount.length} accounts; review for recurring themes.`
+          : 'Most highlights sit under a single account—share outcomes broadly.',
+        records.some((record) => !record.resolvedAt)
+          ? 'Resolve dates are missing on open items; update when follow-up closes.'
+          : 'All highlights include resolved dates—keep them current as outcomes land.',
+      ]
+
   const statusColors: Record<string, string> = {
     OPEN: 'bg-rose-50 text-rose-700 ring-rose-100',
     PENDING: 'bg-amber-50 text-amber-700 ring-amber-100',
@@ -375,9 +403,9 @@ export function PortfolioHighlightsClient({ projectOptions, caseStatuses }: Prop
         <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-cyan-900 via-slate-900 to-[#02060f] p-6 text-sm text-slate-200 shadow">
           <h3 className="text-base font-semibold text-white">Guidance</h3>
           <ul className="mt-3 space-y-2 text-slate-300">
-            <li>• Use highlights to drive exec readiness and unblock outcomes.</li>
-            <li>• Keep timelines accurate so dependencies stay visible.</li>
-            <li>• Close highlights once customer communications are complete.</li>
+            {guidanceLines.map((line, index) => (
+              <li key={index}>• {line}</li>
+            ))}
           </ul>
         </div>
       </aside>

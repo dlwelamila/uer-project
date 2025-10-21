@@ -171,6 +171,55 @@ export function ProjectPipelineClient({ accounts, managers, statuses }: Props) {
   const totalProgress = useMemo(() => projects.reduce((acc, project) => acc + project.progress, 0), [projects])
   const avgProgress = projects.length ? Math.round(totalProgress / projects.length) : 0
 
+  const timelineInsights = useMemo(() => {
+    if (projects.length === 0) {
+      return {
+        overdue: 0,
+        completed: 0,
+        upcomingWithin30: 0,
+      }
+    }
+
+    const now = new Date()
+    const in30 = new Date(now)
+    in30.setDate(in30.getDate() + 30)
+
+    let overdue = 0
+    let completed = 0
+    let upcomingWithin30 = 0
+
+    for (const project of projects) {
+      if (project.status === 'COMPLETED') {
+        completed += 1
+        continue
+      }
+
+      if (!project.dueDate) continue
+
+      const due = new Date(project.dueDate)
+      if (due < now) overdue += 1
+      else if (due <= in30) upcomingWithin30 += 1
+    }
+
+    return { overdue, completed, upcomingWithin30 }
+  }, [projects])
+
+  const checklistLines = projects.length === 0
+    ? [
+        'Create a project to begin tracking delivery milestones.',
+        'Assign a manager and account so ownership and scope stay clear.',
+        'Set a due date to surface upcoming launches.',
+      ]
+    : [
+        `${timelineInsights.completed} project${timelineInsights.completed === 1 ? ' is' : 's are'} marked completed.`,
+        timelineInsights.overdue > 0
+          ? `${timelineInsights.overdue} active project${timelineInsights.overdue === 1 ? ' is' : 's are'} past due—review timelines.`
+          : 'No active projects are past due right now.',
+        timelineInsights.upcomingWithin30 > 0
+          ? `${timelineInsights.upcomingWithin30} project${timelineInsights.upcomingWithin30 === 1 ? ' has' : 's have'} deadlines within 30 days.`
+          : 'No launches scheduled in the next 30 days.',
+      ]
+
   return (
     <section className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
       <div className="space-y-6">
@@ -421,9 +470,9 @@ export function ProjectPipelineClient({ accounts, managers, statuses }: Props) {
         <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-sky-900 via-slate-900 to-[#03070f] p-6 text-sm text-slate-200 shadow">
           <h3 className="text-base font-semibold text-white">Delivery checklist</h3>
           <ul className="mt-3 space-y-2 text-slate-300">
-            <li>• Keep project summaries fresh to align exec updates.</li>
-            <li>• Track due dates to surface slippage in stand-ups.</li>
-            <li>• Close projects once value is validated with the customer.</li>
+            {checklistLines.map((line, index) => (
+              <li key={index}>• {line}</li>
+            ))}
           </ul>
         </div>
       </aside>

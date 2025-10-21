@@ -207,6 +207,35 @@ export function AccountManagersClient({ accounts }: Props) {
 
   const emptyState = !loading && managers.length === 0
 
+  const coverageStats = useMemo(() => {
+    if (managers.length === 0) {
+      return { unassigned: 0, avgAccounts: 0, maxAccounts: 0 }
+    }
+
+    const unassigned = managers.filter((manager) => manager.accounts.length === 0).length
+    const totalAccounts = managers.reduce((sum, manager) => sum + manager.accounts.length, 0)
+    const avgAccounts = managers.length ? Math.round((totalAccounts / managers.length) * 10) / 10 : 0
+    const maxAccounts = managers.reduce((max, manager) => Math.max(max, manager.accounts.length), 0)
+
+    return { unassigned, avgAccounts, maxAccounts }
+  }, [managers])
+
+  const reminderLines = managers.length === 0
+    ? [
+        'Add the first manager to start tracking coverage.',
+        'Assign accounts so the roster highlights ownership gaps.',
+        'Include email or phone details for quick escalations.',
+      ]
+    : [
+        coverageStats.unassigned > 0
+          ? `${coverageStats.unassigned} manager${coverageStats.unassigned === 1 ? ' has' : 's have'} no assigned accounts.`
+          : 'Every manager currently owns at least one account.',
+        `Average portfolio size: ${coverageStats.avgAccounts} account${coverageStats.avgAccounts === 1 ? '' : 's'} per manager (${coverageStats.maxAccounts} max).`,
+        hasUnassignedAccounts
+          ? 'Consider redistributing accounts to balance coverage.'
+          : 'Coverage is balanced; monitor contact details for freshness.',
+      ]
+
   return (
     <>
       <section className="space-y-6">
@@ -320,13 +349,11 @@ export function AccountManagersClient({ accounts }: Props) {
         </div>
 
         <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-950 to-[#03070f] p-6 text-sm text-slate-200 shadow">
-          <h3 className="text-base font-semibold text-white">Coverage tips</h3>
+          <h3 className="text-base font-semibold text-white">Coverage insights</h3>
           <ul className="mt-3 space-y-2 text-slate-300">
-            <li>• Ensure every strategic account has a named primary and backup manager.</li>
-            <li>
-              • Balance assignments: {hasUnassignedAccounts ? 'You have unassigned accounts that need attention.' : 'All managers currently have coverage.'}
-            </li>
-            <li>• Add contact info to ease exec escalations and service transitions.</li>
+            {reminderLines.map((line, index) => (
+              <li key={index}>• {line}</li>
+            ))}
           </ul>
         </div>
       </section>

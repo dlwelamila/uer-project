@@ -182,6 +182,62 @@ export function TaskPipelineClient({ projectOptions, statusOptions }: Props) {
     BLOCKED: 'bg-rose-50 text-rose-700 ring-rose-100',
   }
 
+  const taskInsights = useMemo(() => {
+    if (tasks.length === 0) {
+      return {
+        overdue: 0,
+        blocked: 0,
+        finishedThisWeek: 0,
+      }
+    }
+
+    const now = new Date()
+    const startOfWeek = (() => {
+      const date = new Date(now)
+      const day = date.getDay()
+      const diff = date.getDate() - day + (day === 0 ? -6 : 1)
+      date.setDate(diff)
+      date.setHours(0, 0, 0, 0)
+      return date
+    })()
+
+    let overdue = 0
+    let blocked = 0
+    let finishedThisWeek = 0
+
+    for (const task of tasks) {
+      if (task.status === 'BLOCKED') blocked += 1
+      if (task.status !== 'DONE' && task.dueDate) {
+        const due = new Date(task.dueDate)
+        if (due < now) overdue += 1
+      }
+      if (task.completedAt) {
+        const completed = new Date(task.completedAt)
+        if (completed >= startOfWeek) finishedThisWeek += 1
+      }
+    }
+
+    return { overdue, blocked, finishedThisWeek }
+  }, [tasks])
+
+  const executionNotes = tasks.length === 0
+    ? [
+        'Log your first task to populate the execution board.',
+        'Link tasks to a project so status rolls up correctly.',
+        'Set due dates to highlight upcoming commitments.',
+      ]
+    : [
+        taskInsights.overdue > 0
+          ? `${taskInsights.overdue} active task${taskInsights.overdue === 1 ? ' is' : 's are'} past due.`
+          : 'No active tasks are past due.',
+        taskInsights.blocked > 0
+          ? `${taskInsights.blocked} task${taskInsights.blocked === 1 ? ' is' : 's are'} flagged as blocked.`
+          : 'No tasks are currently marked blocked.',
+        taskInsights.finishedThisWeek > 0
+          ? `${taskInsights.finishedThisWeek} task${taskInsights.finishedThisWeek === 1 ? ' was' : 's were'} completed this week.`
+          : 'No tasks have been completed this week yet.',
+      ]
+
   return (
     <section className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
       <div className="space-y-6">
@@ -399,9 +455,9 @@ export function TaskPipelineClient({ projectOptions, statusOptions }: Props) {
         <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-indigo-900 via-slate-900 to-[#02060f] p-6 text-sm text-slate-200 shadow">
           <h3 className="text-base font-semibold text-white">Execution notes</h3>
           <ul className="mt-3 space-y-2 text-slate-300">
-            <li>• Track blockers and reassign tasks early when bandwidth is tight.</li>
-            <li>• Mark completion dates to power the portfolio highlights KPIs.</li>
-            <li>• Keep due dates current so customers see predictable delivery.</li>
+            {executionNotes.map((line, index) => (
+              <li key={index}>• {line}</li>
+            ))}
           </ul>
         </div>
       </aside>

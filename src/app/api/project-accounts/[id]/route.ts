@@ -43,6 +43,40 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
 export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
   const { id } = params
-  await db.projectAccount.delete({ where: { id } })
+  const account = await db.projectAccount.findUnique({
+    where: { id },
+    include: {
+      projects: { select: { id: true } },
+      managerLinks: { select: { id: true } },
+    },
+  })
+
+  if (!account) {
+    return NextResponse.json({ error: 'Account not found.' }, { status: 404 })
+  }
+
+  if (account.projects.length > 0) {
+    return NextResponse.json(
+      { error: 'Reassign or archive projects tied to this account before deleting it.' },
+      { status: 409 }
+    )
+  }
+
+  if (account.managerLinks.length > 0) {
+    return NextResponse.json(
+      { error: 'Remove account manager assignments before deleting this account.' },
+      { status: 409 }
+    )
+  }
+
+  try {
+    await db.$transaction([
+      db.projectManagerAccount.deleteMany({ where: { accountId: id } }),
+      db.projectAccount.delete({ where: { id } }),
+    ])
+  } catch (error) {
+    return NextResponse.json({ error: 'Unable to delete account at this time.' }, { status: 409 })
+  }
+
   return NextResponse.json({ ok: true })
 }

@@ -144,6 +144,46 @@ export function AccountPortfolioHealthClient({ healthRows }: Props) {
     return { completed, ongoing, upcoming }
   }, [healthRows])
 
+  const metadataInsights = useMemo(() => {
+    if (accounts.length === 0) {
+      return { missingIndustry: 0, missingRegion: 0, inactive: 0 }
+    }
+
+    let missingIndustry = 0
+    let missingRegion = 0
+    let inactive = 0
+
+    for (const account of accounts) {
+      if (!account.industry || !account.industry.trim()) missingIndustry += 1
+      if (!account.region || !account.region.trim()) missingRegion += 1
+      const stats = account.stats
+      const totalWork = (stats?.completed ?? 0) + (stats?.ongoing ?? 0) + (stats?.upcoming ?? 0)
+      if (totalWork === 0) inactive += 1
+    }
+
+    return { missingIndustry, missingRegion, inactive }
+  }, [accounts])
+
+  const { missingIndustry, missingRegion, inactive } = metadataInsights
+
+  const reminderLines = accounts.length === 0
+    ? [
+        'Add an account to populate portfolio health insights.',
+        'Log projects to begin tracking completed, ongoing, and upcoming work.',
+        'Capture industry and region details once accounts are created.',
+      ]
+    : [
+        missingIndustry > 0
+          ? `${missingIndustry} account${missingIndustry === 1 ? '' : 's'} missing an industry tag.`
+          : 'All tracked accounts include industry tags.',
+        missingRegion > 0
+          ? `${missingRegion} account${missingRegion === 1 ? '' : 's'} without a region label.`
+          : 'Every account has a region recorded.',
+        inactive > 0
+          ? `${inactive} account${inactive === 1 ? ' has' : 's have'} no active or completed projects yet.`
+          : 'Each account has at least one project in progress or completed.',
+      ]
+
   return (
     <section className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
       <div className="space-y-6">
@@ -351,9 +391,9 @@ export function AccountPortfolioHealthClient({ healthRows }: Props) {
         <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-emerald-900 via-slate-900 to-[#02060f] p-6 text-sm text-slate-200 shadow">
           <h3 className="text-base font-semibold text-white">Health reminders</h3>
           <ul className="mt-3 space-y-2 text-slate-300">
-            <li>• Keep industries and regions current to align coverage by competency.</li>
-            <li>• Use completed/ongoing counts to balance workloads across the year.</li>
-            <li>• Remove inactive accounts to declutter the executive overview.</li>
+            {reminderLines.map((line, index) => (
+              <li key={index}>• {line}</li>
+            ))}
           </ul>
         </div>
       </aside>
