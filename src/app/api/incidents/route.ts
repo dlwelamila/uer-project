@@ -112,7 +112,6 @@ export async function PUT(req: Request) {
             engagementId,
             srNumber: incident.sn,
             systemName: incident.systemName,
-            systemName: incident.systemName,
           },
         })
         updated.push(row)
