@@ -28,7 +28,10 @@ export function FileDropZone({
 
   const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
   return (
-    <div {...getRootProps()} className={`border-2 border-dashed rounded p-6 text-center ${isDragActive?'bg-blue-50':'bg-white'}`}>
+    <div
+      {...getRootProps()}
+      className={`w-full border-2 border-dashed rounded p-6 text-center ${isDragActive ? 'bg-blue-50' : 'bg-white'}`}
+    >
       <input {...getInputProps()} />
       <p className="text-sm">{status}</p>
     </div>

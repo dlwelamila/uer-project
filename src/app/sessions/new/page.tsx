@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type { ChangeEvent } from 'react'
 import { WizardStepper, WIZARD_STEPS } from '@/components/WizardStepper'
 import { FileDropZone } from '@/components/FileDropZone'
 import { TopFiveForm } from '@/components/TopFiveForm'
@@ -9,11 +11,8 @@ import { SeverityForm } from '@/components/SeverityForm'
 import { ChannelsForm } from '@/components/ChannelsForm'
 import { KeyNotesForm } from '@/components/KeyNotesForm'
 import { SparePartsForm } from '@/components/SparePartsForm'
-import { CodeCurrencyForm, type CodeCurrencyRowDraft } from '@/components/CodeCurrencyForm'
-import {
-  ConnectivityCaptureForm,
-  type ConnectivityRowDraft,
-} from '@/components/ConnectivityCaptureForm'
+import { CodeCurrencyForm } from '@/components/CodeCurrencyForm'
+import { ConnectivityCaptureForm } from '@/components/ConnectivityCaptureForm'
 import { ConnectivityNotesEditor } from '@/components/ConnectivityNotesEditor'
 import { CapacityReviewForm } from '@/components/CapacityReviewForm'
 import { ContractsReviewForm } from '@/components/ContractsReviewForm'
@@ -45,13 +44,26 @@ import {
   type DashboardSparePart,
   withSummaryFallback,
 } from '@/lib/dashboard'
-import { DEFAULT_CONNECTIVITY_NOTES, cloneConnectivityNotes } from '@/lib/connectivity'
+import {
+  DEFAULT_CONNECTIVITY_NOTES,
+  cloneConnectivityNotes,
+  mapConnectivityCsvRows,
+  type ConnectivityRowDraft,
+} from '@/lib/connectivity'
+import { parseCsvFile } from '@/lib/csv'
 import { DEFAULT_ADVISORIES, cloneAdvisories, type AdvisorySection } from '@/lib/advisories'
 import { cloneCapacityReview, DEFAULT_CAPACITY_REVIEW } from '@/lib/capacity-review'
-import { cloneContractsReview, DEFAULT_CONTRACTS_REVIEW } from '@/lib/contracts-review'
+import {
+  cloneContractsReview,
+  DEFAULT_CONTRACTS_REVIEW,
+  mapContractsReviewCsvRows,
+  mergeContractsReviewSections,
+} from '@/lib/contracts-review'
+import { type CodeCurrencyRowDraft } from '@/lib/code-currency'
 import { cloneRiskRegister, DEFAULT_RISK_REGISTER } from '@/lib/risk-register'
 import { cloneActionSummary, DEFAULT_ACTION_SUMMARY } from '@/lib/action-summary'
 import { cloneStandardInformation, DEFAULT_STANDARD_INFORMATION } from '@/lib/standard-information'
+import { mapTopProductsCsvRows, mergeTopProducts } from '@/lib/top-products'
 
 const REPORT_TYPES = [
   { value: 'monthly', label: 'Monthly' },
@@ -226,6 +238,43 @@ function normalizeConnectivityDraft(row: any): {
   }
 }
 
+function connectivityRowKey(row: ConnectivityRowDraft): string {
+  const parts = [row.assetId, row.alternateAssetId, row.productName, row.assetAlias]
+  return parts
+    .filter((part) => Boolean(part && part.trim()))
+    .map((part) => part.trim().toLowerCase())
+    .join('::')
+}
+
+function mergeConnectivityRowSets(
+  current: ConnectivityRowDraft[],
+  incoming: ConnectivityRowDraft[],
+): ConnectivityRowDraft[] {
+  const map = new Map<string, ConnectivityRowDraft>()
+  current.forEach((row) => {
+    map.set(connectivityRowKey(row), { ...row })
+  })
+  incoming.forEach((row) => {
+    map.set(connectivityRowKey(row), { ...row })
+  })
+  return Array.from(map.values()).sort((a, b) => {
+    const productCompare = a.productName.localeCompare(b.productName)
+    if (productCompare !== 0) return productCompare
+    const assetCompare = a.assetId.localeCompare(b.assetId)
+    if (assetCompare !== 0) return assetCompare
+    return a.alternateAssetId.localeCompare(b.alternateAssetId)
+  })
+}
+
+const CONNECTIVITY_IMPORT_REPLACE_PROMPT =
+  'Replace existing connectivity entries and summary totals with the imported data? Click Cancel to merge instead.'
+
+const CONTRACTS_IMPORT_REPLACE_PROMPT =
+  'Replace the current contracts review content with the imported data? Click Cancel to merge instead.'
+
+const TOP_PRODUCTS_IMPORT_REPLACE_PROMPT =
+  'Replace the current Top 5 Products table with the imported data? Click Cancel to merge instead.'
+
 function normalizeFcoTseDraft(row: any): FcoTseRowDraft {
   return {
     srCreated: String(row?.srCreated ?? '').trim(),
@@ -260,6 +309,7 @@ export default function NewSessionPage() {
   const [publishing, setPublishing] = useState(false)
 
   const [topProducts, setTopProducts] = useState<DashboardTopProduct[]>(cloneTopProducts(DEFAULT_TOP_PRODUCTS))
+  const [topProductsImporting, setTopProductsImporting] = useState(false)
   const [trendPoints, setTrendPoints] = useState<DashboardTrendPoint[]>(cloneTrendPoints(DEFAULT_TREND_POINTS))
   const [severitySplit, setSeveritySplit] = useState<DashboardSeveritySplit[]>(cloneSeveritySplit(DEFAULT_SEVERITY_SPLIT))
   const [channelSplit, setChannelSplit] = useState<DashboardChannelSplit[]>(cloneChannelSplit(DEFAULT_CHANNEL_SPLIT))
@@ -272,10 +322,12 @@ export default function NewSessionPage() {
   const [connectivityNotConnectedRows, setConnectivityNotConnectedRows] = useState<ConnectivityRowDraft[]>([])
   const [connectivityNotes, setConnectivityNotes] = useState<string[]>(cloneConnectivityNotes(DEFAULT_CONNECTIVITY_NOTES))
   const [connectivityLoading, setConnectivityLoading] = useState(false)
+  const [connectivityImporting, setConnectivityImporting] = useState(false)
   const [capacityReview, setCapacityReview] = useState(cloneCapacityReview(DEFAULT_CAPACITY_REVIEW))
   const [capacityLoading, setCapacityLoading] = useState(false)
   const [contractsReview, setContractsReview] = useState(cloneContractsReview(DEFAULT_CONTRACTS_REVIEW))
   const [contractsLoading, setContractsLoading] = useState(false)
+  const [contractsImporting, setContractsImporting] = useState(false)
   const [riskRegister, setRiskRegister] = useState(cloneRiskRegister(DEFAULT_RISK_REGISTER))
   const [riskRegisterLoading, setRiskRegisterLoading] = useState(false)
   const [actionSummary, setActionSummary] = useState(cloneActionSummary(DEFAULT_ACTION_SUMMARY))
@@ -290,6 +342,9 @@ export default function NewSessionPage() {
   const [fcoTseLoading, setFcoTseLoading] = useState(false)
   const [majorIncidents, setMajorIncidents] = useState<MajorIncidentDraft[]>([])
   const [incidentsLoading, setIncidentsLoading] = useState(false)
+  const topProductsFileInputRef = useRef<HTMLInputElement | null>(null)
+  const connectivityFileInputRef = useRef<HTMLInputElement | null>(null)
+  const contractsFileInputRef = useRef<HTMLInputElement | null>(null)
 
   const MAX_STEP = WIZARD_STEPS.length - 1
   const SPARE_PART_STEP = WIZARD_STEPS.indexOf('Spare Parts')
@@ -527,6 +582,11 @@ const ensureEngagement = useCallback(
   },
   [engagements, reportType, selectedOrgId, upsertEngagementInState],
 )
+
+  const selectedOrg = useMemo(
+    () => organizations.find((row: any) => row.id === selectedOrgId) ?? null,
+    [organizations, selectedOrgId],
+  )
 
   const currentEngagement = useMemo(
     () => engagements.find((row) => row.id === engagementId) ?? null,
@@ -969,6 +1029,10 @@ const ensureEngagement = useCallback(
     }
   }, [engagementId])
 
+  const topProductsBusy = summaryLoading || topProductsImporting
+  const connectivityBusy = connectivityLoading || connectivityImporting
+  const contractsBusy = contractsLoading || contractsImporting
+
   const currentStepLoading =
     step === MAJOR_INCIDENT_STEP
       ? incidentsLoading
@@ -983,20 +1047,257 @@ const ensureEngagement = useCallback(
               : step === RISK_REGISTER_STEP
                 ? riskRegisterLoading
                 : step === CONTRACTS_REVIEW_STEP
-                  ? contractsLoading
+                  ? contractsBusy
                   : step === CAPACITY_REVIEW_STEP
                     ? capacityLoading
                     : step === CONNECTIVITY_STEP
-                      ? connectivityLoading
+                      ? connectivityBusy
                       : step === CODE_CURRENCY_STEP
                         ? codeCurrencyLoading
-                        : summaryLoading
+                          : step === 0
+                            ? topProductsBusy
+                            : summaryLoading
   const canSave = useMemo(
     () => Boolean(engagementId) && !saving && !currentStepLoading,
     [engagementId, saving, currentStepLoading]
   )
 
   const disabledInputs = !engagementId || saving
+  const disabledConnectivityInputs = disabledInputs || connectivityBusy
+  const disabledContractsInputs = disabledInputs || contractsBusy
+  const disabledTopProductsInputs = disabledInputs || summaryLoading || topProductsImporting
+
+  const handleTopProductsCsvImport = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+
+    setTopProductsImporting(true)
+    setError(null)
+    try {
+      const { rows, errors } = await parseCsvFile(file)
+      if (errors?.length) {
+        console.warn('Top products CSV import reported errors', errors)
+      }
+
+      const {
+        topProducts: imported,
+        detected,
+        skipped,
+        totalRows,
+        processedRows,
+        provided,
+        inferred,
+        filtered,
+        metadata,
+      } = mapTopProductsCsvRows(rows, {
+        customerName: selectedOrg?.name,
+      })
+      if (!detected) {
+        const reasonParts: string[] = []
+        if (filtered.byCustomer) {
+          reasonParts.push(`${filtered.byCustomer} row(s) filtered by the selected customer`)
+        }
+        if (skipped) {
+          reasonParts.push(`${skipped} row(s) missing a product name`)
+        }
+        const reasonText = reasonParts.length ? ` (${reasonParts.join('; ')})` : ''
+        window.alert(`No top products were detected in the CSV file after applying the selected filters${reasonText}.`)
+        return
+      }
+
+      const hasExisting = topProducts.some(
+        (row) => row.product.trim() || row.count !== 0 || row.percent !== 0,
+      )
+      const replace = !hasExisting || window.confirm(TOP_PRODUCTS_IMPORT_REPLACE_PROMPT)
+
+      const next = mergeTopProducts(topProducts, imported, replace ? 'replace' : 'merge')
+      setTopProducts(next)
+
+      if (skipped) {
+        console.info(`Top products import skipped ${skipped} row(s) without a product name.`)
+      }
+      if (filtered.byCustomer) {
+        console.info('Top products import applied customer filtering', filtered)
+      }
+      console.debug('Top products import data', {
+        totalRows,
+        processedRows,
+        provided,
+        inferred,
+        filtered,
+        metadata,
+      })
+
+      setStatusMessage('Top products imported')
+      setTimeout(() => setStatusMessage(''), 2500)
+    } catch (error) {
+      console.error('Failed to import top products CSV', error)
+      window.alert('Unable to import top products CSV. Confirm the file matches the expected format and try again.')
+    } finally {
+      setTopProductsImporting(false)
+    }
+  }
+
+  const handleConnectivityCsvImport = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+
+    setConnectivityImporting(true)
+    setError(null)
+    try {
+      const { rows, errors } = await parseCsvFile(file)
+      if (errors?.length) {
+        console.warn('Connectivity CSV import reported errors', errors)
+      }
+
+      const {
+        connected,
+        notConnected,
+        skipped,
+        statusCounts,
+        totalRows,
+        processedRows,
+        filtered,
+        metadata,
+      } = mapConnectivityCsvRows(rows, {
+        customerName: selectedOrg?.name,
+      })
+      if (!connected.length && !notConnected.length) {
+        window.alert('No connectivity rows were detected in the CSV file.')
+        return
+      }
+
+      const hasExisting = connectivityConnectedRows.length > 0 || connectivityNotConnectedRows.length > 0
+      const replace = !hasExisting || window.confirm(CONNECTIVITY_IMPORT_REPLACE_PROMPT)
+
+      const nextConnected = replace
+        ? connected
+        : mergeConnectivityRowSets(connectivityConnectedRows, connected)
+      const nextNotConnected = replace
+        ? notConnected
+        : mergeConnectivityRowSets(connectivityNotConnectedRows, notConnected)
+
+      setConnectivityConnectedRows(nextConnected)
+      setConnectivityNotConnectedRows(nextNotConnected)
+      setConnectivitySummary({
+        totalAssets: nextConnected.length + nextNotConnected.length,
+        connectedCount: nextConnected.length,
+      })
+
+      if (skipped) {
+        console.info(`Connectivity import skipped ${skipped} row(s) without sufficient identifiers.`)
+      }
+      if (Object.keys(statusCounts).length) {
+        console.debug('Connectivity import status counts', statusCounts)
+      }
+      if (filtered.byCustomer) {
+        console.info('Connectivity import applied customer filtering', filtered)
+      }
+      if (metadata.customerColumn === null && selectedOrg?.name) {
+        console.info('Connectivity CSV import did not find a customer column to validate the selected account.')
+      }
+      console.debug('Connectivity import data', {
+        totalRows,
+        processedRows,
+        filtered,
+        metadata,
+      })
+      setStatusMessage('Connectivity data imported')
+      setTimeout(() => setStatusMessage(''), 2500)
+    } catch (error) {
+      console.error('Failed to import connectivity CSV', error)
+      window.alert('Unable to import connectivity CSV. Confirm the file matches the expected columns and try again.')
+    } finally {
+      setConnectivityImporting(false)
+    }
+  }
+
+  const handleContractsCsvImport = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+
+    setContractsImporting(true)
+    setError(null)
+    try {
+      const { rows, errors } = await parseCsvFile(file)
+      if (errors?.length) {
+        console.warn('Contracts review CSV import reported errors', errors)
+      }
+
+      const {
+        section: imported,
+        provided,
+        skipped,
+        categoryCounts,
+        totalRows,
+        processedRows,
+        filtered,
+        metadata,
+      } = mapContractsReviewCsvRows(rows, {
+        customerName: selectedOrg?.name,
+      })
+      const hasContent =
+        provided.title ||
+        provided.summary ||
+        provided.keyNotes > 0 ||
+        provided.statusHighlights > 0 ||
+        provided.productHighlights > 0 ||
+        provided.screenshotCaption
+
+      if (!hasContent) {
+        window.alert('No contracts review content was detected in the CSV file.')
+        return
+      }
+
+      const hasExisting = Boolean(
+        contractsReview.title.trim() ||
+          contractsReview.summary.trim() ||
+          contractsReview.screenshotCaption.trim() ||
+          contractsReview.keyNotes.length ||
+          contractsReview.statusHighlights.length ||
+          contractsReview.productHighlights.length,
+      )
+
+      const replace = !hasExisting || window.confirm(CONTRACTS_IMPORT_REPLACE_PROMPT)
+
+      const next = mergeContractsReviewSections(
+        contractsReview,
+        imported,
+        provided,
+        replace ? 'replace' : 'merge',
+      )
+
+      setContractsReview(next)
+      if (skipped) {
+        console.info(`Contracts review import skipped ${skipped} row(s) without recognised values.`)
+      }
+      if (Object.keys(categoryCounts).length) {
+        console.debug('Contracts review import category counts', categoryCounts)
+      }
+      if (filtered.byCustomer) {
+        console.info('Contracts review import applied customer filtering', filtered)
+      }
+      if (metadata.customerColumn === null && selectedOrg?.name) {
+        console.info('Contracts review CSV import did not find a customer column to validate the selected account.')
+      }
+      console.debug('Contracts review import data', {
+        totalRows,
+        processedRows,
+        filtered,
+        metadata,
+      })
+      setStatusMessage('Contracts review imported')
+      setTimeout(() => setStatusMessage(''), 2500)
+    } catch (error) {
+      console.error('Failed to import contracts review CSV', error)
+      window.alert('Unable to import contracts review CSV. Confirm the file matches the expected format and try again.')
+    } finally {
+      setContractsImporting(false)
+    }
+  }
 
 
   const persistSummary = useCallback(async () => {
@@ -1622,10 +1923,34 @@ const persistMajorIncidents = useCallback(async () => {
       {step === 0 && (
         <Section title="Step 1 - Top 5 Products" evidenceKey="01_Top5" engagementId={engagementId}>
           <p className="mb-3 text-sm text-slate-600">
-            Ask the customer to open MS360 -> SRs by Product (last 12 months). Enter the table below and upload
+            Ask the customer to open MS360 -&gt; SRs by Product (last 12 months). Enter the table below and upload
             screenshots on the right.
           </p>
-          <TopFiveForm value={topProducts} onChange={setTopProducts} />
+          <div className="space-y-4">
+            {topProductsBusy && (
+              <div className="rounded border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                {summaryLoading ? 'Loading top products...' : 'Importing top products CSV...'}
+              </div>
+            )}
+            <div className="flex items-center justify-end gap-2">
+              <input
+                ref={topProductsFileInputRef}
+                type="file"
+                accept=".csv,text/csv"
+                onChange={handleTopProductsCsvImport}
+                className="hidden"
+              />
+              <button
+                type="button"
+                className="inline-flex items-center rounded border border-[#143a66] px-3 py-1 text-xs font-semibold text-[#143a66] transition hover:bg-[#143a66]/10 disabled:opacity-50"
+                onClick={() => topProductsFileInputRef.current?.click()}
+                disabled={disabledTopProductsInputs}
+              >
+                Import CSV
+              </button>
+            </div>
+            <TopFiveForm value={topProducts} onChange={setTopProducts} disabled={disabledTopProductsInputs} />
+          </div>
         </Section>
       )}
 
@@ -1683,6 +2008,7 @@ const persistMajorIncidents = useCallback(async () => {
     title={`Step ${CODE_CURRENCY_STEP + 1} - Code Currency`}
     evidenceKey="07_CodeCurrency"
     engagementId={engagementId}
+    stackEvidence
   >
     <p className="mb-3 text-sm text-slate-600">
       Catalogue the current firmware baseline for each managed platform. Flag the support posture and
@@ -1697,6 +2023,9 @@ const persistMajorIncidents = useCallback(async () => {
       value={codeCurrencyRows}
       onChange={setCodeCurrencyRows}
       disabled={!engagementId || saving || codeCurrencyLoading}
+      importOptions={{
+        customerName: selectedOrg?.name,
+      }}
     />
   </Section>
 )}
@@ -1706,50 +2035,73 @@ const persistMajorIncidents = useCallback(async () => {
     title={`Step ${CONNECTIVITY_STEP + 1} - Connectivity`}
     evidenceKey="08_Connectivity"
     engagementId={engagementId}
+    stackEvidence
   >
     <p className="mb-3 text-sm text-slate-600">
       Capture connectivity status for eligible assets. Identify which devices are actively reporting telemetry and
       highlight those that require restoration.
     </p>
     <div className="space-y-6">
-      {connectivityLoading && (
+      {connectivityBusy && (
         <div className="rounded border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
-          Loading connectivity...
+          {connectivityLoading ? 'Loading connectivity...' : 'Importing connectivity CSV...'}
         </div>
       )}
-      <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-        <label className="text-xs font-semibold uppercase tracking-wide text-[#5B6B7C]">
-          Total Assets
-          <input
-            type="number"
-            min={0}
-            className="mt-1 w-full rounded border border-slate-300 px-2 py-1 text-sm"
-            value={connectivitySummary.totalAssets}
-            onChange={(event) =>
-              setConnectivitySummary((prev) => ({ ...prev, totalAssets: Number(event.target.value) || 0 }))
-            }
-            disabled={disabledInputs || connectivityLoading}
-          />
-        </label>
-        <label className="text-xs font-semibold uppercase tracking-wide text-[#5B6B7C]">
-          Connected Assets
-          <input
-            type="number"
-            min={0}
-            className="mt-1 w-full rounded border border-slate-300 px-2 py-1 text-sm"
-            value={connectivitySummary.connectedCount}
-            onChange={(event) =>
-              setConnectivitySummary((prev) => ({ ...prev, connectedCount: Number(event.target.value) || 0 }))
-            }
-            disabled={disabledInputs || connectivityLoading}
-          />
-        </label>
-        <div className="rounded border border-slate-200 bg-[#f5f8ff] px-3 py-2 text-xs text-[#4a5d7a]">
-          <div className="font-semibold text-[#123c73]">Derived Not Connected</div>
-          <div className="text-base font-semibold text-[#c62828]">
-            {Math.max(connectivitySummary.totalAssets - connectivitySummary.connectedCount, connectivityNotConnectedRows.length)}
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="grid flex-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+          <label className="text-xs font-semibold uppercase tracking-wide text-[#5B6B7C]">
+            Total Assets
+            <input
+              type="number"
+              min={0}
+              className="mt-1 w-full rounded border border-slate-300 px-2 py-1 text-sm"
+              value={connectivitySummary.totalAssets}
+              onChange={(event) =>
+                setConnectivitySummary((prev) => ({ ...prev, totalAssets: Number(event.target.value) || 0 }))
+              }
+              disabled={disabledConnectivityInputs}
+            />
+          </label>
+          <label className="text-xs font-semibold uppercase tracking-wide text-[#5B6B7C]">
+            Connected Assets
+            <input
+              type="number"
+              min={0}
+              className="mt-1 w-full rounded border border-slate-300 px-2 py-1 text-sm"
+              value={connectivitySummary.connectedCount}
+              onChange={(event) =>
+                setConnectivitySummary((prev) => ({ ...prev, connectedCount: Number(event.target.value) || 0 }))
+              }
+              disabled={disabledConnectivityInputs}
+            />
+          </label>
+          <div className="rounded border border-slate-200 bg-[#f5f8ff] px-3 py-2 text-xs text-[#4a5d7a]">
+            <div className="font-semibold text-[#123c73]">Derived Not Connected</div>
+            <div className="text-base font-semibold text-[#c62828]">
+              {Math.max(
+                connectivitySummary.totalAssets - connectivitySummary.connectedCount,
+                connectivityNotConnectedRows.length,
+              )}
+            </div>
+            <div>Calculated from totals or row count.</div>
           </div>
-          <div>Calculated from totals or row count.</div>
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            ref={connectivityFileInputRef}
+            type="file"
+            accept=".csv,text/csv"
+            onChange={handleConnectivityCsvImport}
+            className="hidden"
+          />
+          <button
+            type="button"
+            className="inline-flex items-center rounded border border-[#03626d] px-3 py-1 text-xs font-semibold text-[#03626d] transition hover:bg-[#03626d]/10 disabled:opacity-50"
+            onClick={() => connectivityFileInputRef.current?.click()}
+            disabled={disabledConnectivityInputs}
+          >
+            Import CSV
+          </button>
         </div>
       </div>
       <ConnectivityCaptureForm
@@ -1759,12 +2111,12 @@ const persistMajorIncidents = useCallback(async () => {
           setConnectivityConnectedRows(connected)
           setConnectivityNotConnectedRows(notConnected)
         }}
-        disabled={disabledInputs || connectivityLoading}
+        disabled={disabledConnectivityInputs}
         notesSlot={
           <ConnectivityNotesEditor
             value={connectivityNotes}
             onChange={setConnectivityNotes}
-            disabled={disabledInputs || connectivityLoading}
+            disabled={disabledConnectivityInputs}
           />
         }
       />
@@ -1800,14 +2152,35 @@ const persistMajorIncidents = useCallback(async () => {
     <p className="mb-3 text-sm text-slate-600">
       Capture support contract coverage and renewal status. Summarize the chart highlights and add talking points that align with the uploaded screenshot.
     </p>
-    {contractsLoading && (
-      <div className="mb-3 rounded border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">Loading contracts review...</div>
-    )}
-    <ContractsReviewForm
-      value={contractsReview}
-      onChange={setContractsReview}
-      disabled={!engagementId || saving || contractsLoading}
-    />
+    <div className="space-y-4">
+      {contractsBusy && (
+        <div className="rounded border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+          {contractsLoading ? 'Loading contracts review...' : 'Importing contracts review CSV...'}
+        </div>
+      )}
+      <div className="flex items-center justify-end gap-2">
+        <input
+          ref={contractsFileInputRef}
+          type="file"
+          accept=".csv,text/csv"
+          onChange={handleContractsCsvImport}
+          className="hidden"
+        />
+        <button
+          type="button"
+          className="inline-flex items-center rounded border border-[#5B6B7C] px-3 py-1 text-xs font-semibold text-[#394b5c] transition hover:bg-[#5B6B7C]/10 disabled:opacity-50"
+          onClick={() => contractsFileInputRef.current?.click()}
+          disabled={disabledContractsInputs}
+        >
+          Import CSV
+        </button>
+      </div>
+      <ContractsReviewForm
+        value={contractsReview}
+        onChange={setContractsReview}
+        disabled={disabledContractsInputs}
+      />
+    </div>
   </Section>
 )}
 
@@ -1995,13 +2368,33 @@ function Section({
   evidenceKey,
   engagementId,
   children,
+  stackEvidence = false,
 }: {
   title: string
   evidenceKey: string
   engagementId: string
   children: React.ReactNode
+  stackEvidence?: boolean
 }) {
   const disabled = !engagementId
+  if (stackEvidence) {
+    return (
+      <div className="space-y-4">
+        <div className="space-y-3 rounded-lg bg-white p-4 shadow">
+          <h2 className="font-semibold">{title}</h2>
+          {children}
+        </div>
+        <div className="rounded-lg bg-white p-4 shadow">
+          <h3 className="mb-2 font-semibold">Evidence</h3>
+          {disabled ? (
+            <div className="text-xs text-slate-500">Select an engagement to enable uploads.</div>
+          ) : (
+            <FileDropZone engagementId={engagementId} sectionKey={evidenceKey} environment="HQ" />
+          )}
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="grid gap-4 md:grid-cols-3">
       <div className="space-y-3 rounded-lg bg-white p-4 shadow md:col-span-2">

@@ -1,1 +1,5 @@
-product_family,connected_count,not_connected_count
+Asset ID,Alt Asset ID,Product Name,Asset Alias,Connectivity Status,Last Alert & Telemetry Delivery,Connection Type,Health Score
+DE600200613759,9WB1033,VxRail E560F,,Connected,2025-10-21 03:42:45,Secure Connect Gateway - Virtual Appliance v5,100
+DE600200613766,4WB1033,VxRail E560F,,Not Connected,2023-03-07 06:13:26,OTHER,55
+CKM01214405040,3VP2KF3,Dell EMC Unity XT 480,,Connected,2025-10-21 03:33:12,Secure Connect Gateway - Appliance v5,70
+CRK00240121776,,DD6400 Appliance,,Not Connected,2025-04-16 07:04:27,Secure Connect Gateway - Appliance v5,45

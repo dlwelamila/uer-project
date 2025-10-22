@@ -9,9 +9,10 @@ import {
 type Props = {
   value?: DashboardTopProduct[]
   onChange?: (rows: DashboardTopProduct[]) => void
+  disabled?: boolean
 }
 
-export function TopFiveForm({ value, onChange }: Props) {
+export function TopFiveForm({ value, onChange, disabled = false }: Props) {
   const [rows, setRows] = useState<DashboardTopProduct[]>(() =>
     value && value.length ? cloneTopProducts(value) : cloneTopProducts(DEFAULT_TOP_PRODUCTS)
   )
@@ -54,15 +55,15 @@ export function TopFiveForm({ value, onChange }: Props) {
             <tr key={i} className="border-t">
               <td className="p-2">
                 <input className="w-full border p-1 rounded" value={r.product}
-                  onChange={e=>update(i,'product',e.target.value)} />
+                  onChange={e=>update(i,'product',e.target.value)} disabled={disabled} />
               </td>
               <td className="p-2">
                 <input type="number" className="w-full border p-1 rounded text-right"
-                  value={r.count} onChange={e=>update(i,'count',e.target.value)} />
+                  value={r.count} onChange={e=>update(i,'count',e.target.value)} disabled={disabled} />
               </td>
               <td className="p-2">
                 <input type="number" step="0.1" className="w-full border p-1 rounded text-right"
-                  value={r.percent} onChange={e=>update(i,'percent',e.target.value)} />
+                  value={r.percent} onChange={e=>update(i,'percent',e.target.value)} disabled={disabled} />
               </td>
             </tr>
           ))}

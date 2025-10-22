@@ -1,1 +1,8 @@
-product,count,percent
+Product,SR Count,Percent
+VxRail P570F,45,39.8
+NetWorker,21,18.5
+VxRail P670F,14,12.3
+Dell EMC Unity XT 480,9,7.9
+DD6400 Appliance,8,7.0
+Dell EMC Unity 500,6,5.3
+Others,10,8.8

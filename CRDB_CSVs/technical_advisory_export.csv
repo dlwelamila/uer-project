@@ -1,0 +1,6 @@
+"ASSETS","IMPACT","ADVISORY ID","TITLE","STATUS","STATUS UPDATED BY","ARTICLE AGE"
+2,"Critical","DTA 225055","Cloud Disaster Recovery: New Server Deployments Procured from Third-party Vendor Fails from March 19, 2024, Due to End of Life of MySQL Single Server","New",,"433 days"
+4,"Critical","DTA 226440","NetWorker: In-progress Clones May Inadvertently be Identified as Orphaned and Removed","New",,"460 days"
+2,"Critical","DTA 224718","PowerProtect DD6300: Users Running DDOS 7.13.0.x and 8.0.0.10 May Experience Data Integrity Issues if the File System Experiences Unplanned Restart","New",,"533 days"
+4,"High","DTA 226855","Secure Connect Gateway: ConnectEMC Root Certificates are to Expire March 21, 2025","New",,"433 days"
+9,"High","DTA 224353","Avamar: Dell Connectivity Registration in the Avamar User Interface in v19.10 encounters an issue if Avamar does not have an Internet connection","New",,"524 days"

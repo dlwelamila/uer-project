@@ -1,15 +1,7 @@
 import type { ReactNode } from 'react'
+import type { ConnectivityRowDraft } from '@/lib/connectivity'
 
-export type ConnectivityRowDraft = {
-  assetId: string
-  alternateAssetId: string
-  productName: string
-  assetAlias: string
-  lastAlertAt: string
-  connectionType: string
-  healthScore: number | ''
-  healthLabel: '' | 'Good' | 'Fair' | 'Poor'
-}
+export type { ConnectivityRowDraft } from '@/lib/connectivity'
 
 type Props = {
   connected: ConnectivityRowDraft[]
@@ -104,7 +96,7 @@ export function ConnectivityCaptureForm({ connected, notConnected, onChange, dis
             {!rows.length && (
               <tr>
                 <td colSpan={9} className="px-3 py-6 text-center text-xs text-[#5b6b7c]">
-                  No assets captured yet. Use "Add Asset" to begin.
+                  No assets captured yet. Use &quot;Add Asset&quot; to begin.
                 </td>
               </tr>
             )}
