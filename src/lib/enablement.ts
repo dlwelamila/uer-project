@@ -62,5 +62,5 @@ export function toEnablementRoleEnum(label: unknown): EnablementRoleEnum {
   }
 
   const normalized = label.trim().toLowerCase()
-  return ROLE_LOOKUP[normalized] ?? (normalized === 'sales' ? 'SALES' : 'SYSTEMS_ENGINEER')
+  return ROLE_LOOKUP[normalized] ?? 'SYSTEMS_ENGINEER'
 }

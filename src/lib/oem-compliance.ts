@@ -106,9 +106,12 @@ export function mapTrack(record: TrackWithAssignments) {
     roadmapNotes: record.roadmapNotes ?? null,
     assignments: record.assignments
       .map((assignment: AssignmentWithRelations) => mapAssignment(assignment))
-      .sort((a: AssignmentDto, b: AssignmentDto) =>
-        a.engineer.localeCompare(b.engineer) || a.certificationName.localeCompare(b.certificationName)
-      ),
+      .sort((a: AssignmentDto, b: AssignmentDto) => {
+        const engineerCompare = a.engineer.localeCompare(b.engineer);
+        return engineerCompare !== 0
+          ? engineerCompare
+          : a.certificationName.localeCompare(b.certificationName);
+      }),
   }
 }
 
