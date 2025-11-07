@@ -7,17 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/**
- * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Core org structure â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
- */
-
 model Organization {
   id           String        @id @default(cuid())
   name         String        @unique
   createdAt    DateTime      @default(now())
-  environments Environment[]
-  engagements  Engagement[]
   contacts     Contact[]
+  engagements  Engagement[]
+  environments Environment[]
 }
 
 model Environment {
@@ -29,95 +25,73 @@ model Environment {
 }
 
 model Engagement {
-  id             String       @id @default(cuid())
+  id             String        @id @default(cuid())
   organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  type           String // monthly/quarterly/annual
+  type           String
   periodStart    DateTime
   periodEnd      DateTime
-  status         String       @default("Draft")
-
-  sessions Session[]
-  notes    Note[]
-
-  // Summary widgets
-  channelStats ChannelStat[]
-  volumePoints VolumePoint[]
-  incidents    Incident[]
-
-  // Backref for evidence captured within this engagement
-  evidence Evidence[] @relation("EngagementEvidence")
+  status         String        @default("Draft")
+  channelStats   ChannelStat[]
+  organization   Organization  @relation(fields: [organizationId], references: [id])
+  evidence       Evidence[]    @relation("EngagementEvidence")
+  incidents      Incident[]
+  notes          Note[]
+  sessions       Session[]
+  volumePoints   VolumePoint[]
 }
 
 model Session {
   id           String     @id @default(cuid())
   engagementId String
+  medium       String
+  scheduledAt  DateTime?
+  startedAt    DateTime?
+  endedAt      DateTime?
+  attendees    String?
+  notes        String?
+  evidence     Evidence[] @relation("SessionEvidence")
   engagement   Engagement @relation(fields: [engagementId], references: [id])
-
-  medium      String // Zoom/Onsite
-  scheduledAt DateTime?
-  startedAt   DateTime?
-  endedAt     DateTime?
-  attendees   String?
-  notes       String?
-
-  // Backref via Evidence.sessionId
-  evidence Evidence[] @relation("SessionEvidence")
 }
 
-/**
- * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Provenance (evidence & extraction) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
- */
-
 model Evidence {
-  id String @id @default(cuid())
-
-  // Always tie to an engagement
+  id           String       @id @default(cuid())
   engagementId String
-  engagement   Engagement @relation("EngagementEvidence", fields: [engagementId], references: [id])
-
-  // Optionally tie to a specific session during that engagement
-  sessionId String?
-  session   Session? @relation("SessionEvidence", fields: [sessionId], references: [id])
-
+  sessionId    String?
   sectionKey   String
   filePath     String
   originalName String
   takenAt      DateTime?
   takenBy      String?
-  environment  String? // HQ/DR/Prod
-  redaction    String? // original/redacted
+  environment  String?
+  redaction    String?
   extra        Json?
-
-  extractions Extraction[]
-  createdAt   DateTime     @default(now())
+  createdAt    DateTime     @default(now())
+  engagement   Engagement   @relation("EngagementEvidence", fields: [engagementId], references: [id])
+  session      Session?     @relation("SessionEvidence", fields: [sessionId], references: [id])
+  extractions  Extraction[]
 }
 
 model Extraction {
   id          String    @id @default(cuid())
   evidenceId  String
-  evidence    Evidence  @relation(fields: [evidenceId], references: [id])
   fieldKey    String
   rawText     String?
   parsedValue String?
   confidence  Float?
   verifiedBy  String?
   verifiedAt  DateTime?
+  evidence    Evidence  @relation(fields: [evidenceId], references: [id])
 }
 
 model Note {
   id           String     @id @default(cuid())
   engagementId String
-  engagement   Engagement @relation(fields: [engagementId], references: [id])
   sectionKey   String
   text         String
   author       String?
   createdAt    DateTime   @default(now())
+  engagement   Engagement @relation(fields: [engagementId], references: [id])
 }
-
-/**
- * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Domain entities â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
- */
 
 model ProductFamily {
   id     String         @id @default(cuid())
@@ -134,86 +108,80 @@ model ProductModel {
 }
 
 model System {
-  id            String        @id @default(cuid())
-  displayName   String
-  serial        String?
-  installedCode String?
-  status        String? // Good/Fair/Poor
-  environmentId String?
-  environment   Environment?  @relation(fields: [environmentId], references: [id])
-  modelId       String?
-  model         ProductModel? @relation(fields: [modelId], references: [id])
-
-  serviceRequests ServiceRequest[]
+  id              String           @id @default(cuid())
+  displayName     String
+  serial          String?
+  installedCode   String?
+  status          String?
+  environmentId   String?
+  modelId         String?
   incidents       Incident[]
+  serviceRequests ServiceRequest[]
   sparePartEvents SparePartEvent[] @relation("SystemSpareParts")
+  environment     Environment?     @relation(fields: [environmentId], references: [id])
+  model           ProductModel?    @relation(fields: [modelId], references: [id])
 }
 
 model ServiceRequest {
   id        String    @id @default(cuid())
   systemId  String?
-  system    System?   @relation(fields: [systemId], references: [id])
-  severity  Int // 1,2,3,5
-  channel   String // Web/Phone/Dial-Home/Connect Home/Chat/Email
+  severity  Int
+  channel   String
   createdAt DateTime
   closedAt  DateTime?
   status    String
-
-  // (No incidents[] here until we add a matching field on Incident)
+  system    System?   @relation(fields: [systemId], references: [id])
 }
 
 model Incident {
-  id       String  @id @default(cuid())
-  engagementId String?
-  engagement   Engagement? @relation(fields: [engagementId], references: [id])
-
-  systemId String?
-  system   System? @relation(fields: [systemId], references: [id])
-  systemName     String?
-
+  id             String      @id @default(cuid())
+  systemId       String?
   codeLevel      String?
-  sn             String?
-  srNumber       String?
   summary        String
   createdAt      DateTime
   resolvedAt     DateTime?
   closedAt       DateTime?
-  status         String    @default("Open")
+  status         String      @default("Open")
   impact         String?
   resolution     String?
   recommendation String?
-
-  createdTs DateTime @default(now())
-  updatedTs DateTime @updatedAt
+  createdTs      DateTime    @default(now())
+  updatedTs      DateTime    @updatedAt
+  engagementId   String?
+  sn             String?
+  srNumber       String?
+  systemName     String?
+  engagement     Engagement? @relation(fields: [engagementId], references: [id])
+  system         System?     @relation(fields: [systemId], references: [id])
 }
 
 model SparePartEvent {
   id       String   @id @default(cuid())
   systemId String?
-  system   System?  @relation("SystemSpareParts", fields: [systemId], references: [id])
   date     DateTime
   srNumber String?
   partType String
   quantity Int      @default(1)
   mode     String?
   status   String?
+  system   System?  @relation("SystemSpareParts", fields: [systemId], references: [id])
 }
 
 model ChannelStat {
   id           String     @id @default(cuid())
   engagementId String
-  engagement   Engagement @relation(fields: [engagementId], references: [id])
   channel      String
   percent      Float
+  engagement   Engagement @relation(fields: [engagementId], references: [id])
 }
 
 model VolumePoint {
   id           String     @id @default(cuid())
   engagementId String
-  engagement   Engagement @relation(fields: [engagementId], references: [id])
   month        Int
   year         Int
   value        Int
+  engagement   Engagement @relation(fields: [engagementId], references: [id])
 }
 
 model Gateway {
@@ -239,7 +207,7 @@ model CodePolicyTrack {
   x8Rec       String?
   x8Latest    String?
   installed   String?
-  marker      String? // O/M/R/L
+  marker      String?
 }
 
 model Contract {
@@ -247,17 +215,17 @@ model Contract {
   product      String?
   startDate    DateTime?
   endDate      DateTime
-  statusBucket String // Active/Expiring 30/60/90/Expired
+  statusBucket String
 }
 
 model Risk {
   id          String  @id @default(cuid())
   category    String
   description String
-  priority    String // P1/P2/P3
-  probDU      String? // Yes/No
+  priority    String
+  probDU      String?
   owner       String
-  status      String // Registered/In Progress/Closed
+  status      String
   due         String?
   mitigation  String?
 }
@@ -266,7 +234,7 @@ model ActionItem {
   id     String  @id @default(cuid())
   action String
   owner  String
-  status String // Registered/In Progress/Completed
+  status String
   due    String?
   notes  String?
 }
@@ -274,33 +242,122 @@ model ActionItem {
 model Contact {
   id             String       @id @default(cuid())
   organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
   name           String
   role           String?
   phone          String?
   email          String?
+  organization   Organization @relation(fields: [organizationId], references: [id])
 }
 
-enum ProjectStatus {
-  UPCOMING
-  ONGOING
-  COMPLETED
-  BLOCKED
-  ON_HOLD
+model Engineer {
+  id             String                  @id @default(cuid())
+  name           String                  @unique
+  role           String?
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+  certifications EngineerCertification[]
+  oemAssignments OemComplianceAssignment[]
+  trainingRecords EngineerTraining[]
 }
 
-enum ProjectTaskStatus {
-  TODO
-  IN_PROGRESS
-  DONE
-  BLOCKED
+model EngineerCertification {
+  id             String    @id @default(cuid())
+  engineerId     String
+  certification  String
+  vendor         String
+  domain         String?
+  year           Int?
+  expires        DateTime?
+  status         String
+  statusDetail   String?
+  notExpiring    Boolean   @default(false)
+  attachmentPath String?
+  attachmentName String?
+  attachmentMime String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  engineer       Engineer  @relation(fields: [engineerId], references: [id], onDelete: Cascade)
+  oemAssignments OemComplianceAssignment[]
+
+  @@unique([engineerId, certification, vendor])
+  @@index([engineerId])
+  @@index([vendor])
 }
 
-enum ProjectCaseStatus {
-  OPEN
-  PENDING
-  RESOLVED
-  CLOSED
+model EngineerTraining {
+  id              String          @id @default(cuid())
+  engineerId      String
+  vendor          String
+  module          String
+  domain          String?
+  progressPercent Int             @default(0)
+  timeline        String?
+  status          TrainingStatus  @default(IN_PROGRESS)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  engineer        Engineer        @relation(fields: [engineerId], references: [id], onDelete: Cascade)
+
+  @@unique([engineerId, module])
+  @@index([engineerId])
+  @@index([vendor])
+  @@index([status])
+}
+
+model EnablementProgram {
+  id             String           @id @default(cuid())
+  vendor         String
+  specialization String
+  role           EnablementRole
+  keywords       String[]         @default([])
+  activeYear     Int
+  notes          String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([vendor, specialization, role], name: "vendor_specialization_role")
+}
+
+model OemComplianceTrack {
+  id                 String                   @id @default(cuid())
+  oem                String
+  specialization     String
+  requiredCerts      Int                      @default(0)
+  earnedCerts        Int                      @default(0)
+  overallRequirement Int
+  overallEarned      Int                      @default(0)
+  complianceStatus   OemComplianceStatus      @default(PENDING)
+  targetDate         DateTime?
+  roadmapNotes       String?
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+  assignments        OemComplianceAssignment[]
+
+  @@unique([oem, specialization], name: "oem_specialization")
+  @@index([oem])
+  @@index([complianceStatus])
+}
+
+model OemComplianceAssignment {
+  id                String               @id @default(cuid())
+  trackId           String
+  engineerId        String
+  certificationName String
+  status            OemAssignmentStatus  @default(PENDING)
+  startedAt         DateTime?
+  completedAt       DateTime?
+  dueAt             DateTime?
+  certificationId   String?
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  track             OemComplianceTrack   @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  engineer          Engineer             @relation(fields: [engineerId], references: [id], onDelete: Cascade)
+  certification     EngineerCertification? @relation(fields: [certificationId], references: [id])
+
+  @@unique([trackId, engineerId, certificationName], name: "trackId_engineerId_certificationName")
+  @@index([trackId])
+  @@index([engineerId])
+  @@index([status])
+  @@index([certificationId])
 }
 
 model ProjectAccount {
@@ -330,29 +387,27 @@ model ProjectManagerAccount {
   managerId String
   accountId String
   createdAt DateTime       @default(now())
-
-  manager ProjectManager @relation(fields: [managerId], references: [id])
-  account ProjectAccount @relation(fields: [accountId], references: [id])
+  account   ProjectAccount @relation(fields: [accountId], references: [id])
+  manager   ProjectManager @relation(fields: [managerId], references: [id])
 
   @@unique([managerId, accountId])
 }
 
 model Project {
-  id          String        @id @default(cuid())
+  id          String         @id @default(cuid())
   name        String
   description String?
-  status      ProjectStatus @default(ONGOING)
-  progress    Int           @default(0)
+  status      ProjectStatus  @default(ONGOING)
+  progress    Int            @default(0)
   dueDate     DateTime?
   accountId   String
   managerId   String
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  account ProjectAccount @relation(fields: [accountId], references: [id])
-  manager ProjectManager @relation(fields: [managerId], references: [id])
-  tasks   ProjectTask[]
-  cases   ProjectCase[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  account     ProjectAccount @relation(fields: [accountId], references: [id])
+  manager     ProjectManager @relation(fields: [managerId], references: [id])
+  cases       ProjectCase[]
+  tasks       ProjectTask[]
 
   @@unique([name, accountId])
 }
@@ -366,23 +421,169 @@ model ProjectTask {
   completedAt DateTime?
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
-
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project     Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@unique([projectId, title])
 }
 
 model ProjectCase {
-  id        String            @id @default(cuid())
-  projectId String
-  summary   String
-  status    ProjectCaseStatus @default(OPEN)
-  openedAt  DateTime          @default(now())
+  id         String            @id @default(cuid())
+  projectId  String
+  summary    String
+  status     ProjectCaseStatus @default(OPEN)
+  openedAt   DateTime          @default(now())
   resolvedAt DateTime?
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  project    Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@unique([projectId, summary])
+}
+
+model SalesLead {
+  id             String   @id @default(cuid())
+  name           String
+  company        String
+  email          String?
+  phone          String?
+  manager        String?
+  status         String   @default("New Lead")
+  estimatedValue Int?
+  probability    Int?
+  sector         String?
+  region         String?
+  source         String?
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([name, company])
+  @@index([company])
+  @@index([status])
+}
+
+model SalesTarget {
+  id          String            @id @default(cuid())
+  period      SalesTargetPeriod
+  amount      Int
+  periodStart DateTime
+  periodEnd   DateTime
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([period, periodStart, periodEnd])
+  @@index([period, periodStart])
+  @@index([period, periodEnd])
+}
+
+model Tender {
+  id                 String         @id @default(cuid())
+  name               String
+  entity             String
+  status             TenderStatus   @default(ONGOING)
+  submissionDate     DateTime?
+  advertisedDate     DateTime?
+  submissionDateTime DateTime?
+  tenderNumber       String?
+  value              Int?
+  owner              String?
+  comment            String?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  workflows          TenderWorkflowTask[]
+
+  @@index([status])
+  @@index([submissionDate])
+  @@index([entity])
+}
+
+model TenderWorkflowTask {
+  id        String       @id @default(cuid())
+  tenderId  String
+  stage     String
+  keyTask   String?
+  timeline  String?
+  owner     String?
+  status    TenderStatus @default(PENDING)
+  note      String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  tender    Tender       @relation(fields: [tenderId], references: [id], onDelete: Cascade)
+
+  @@index([tenderId])
+  @@index([status])
+}
+
+model TenderHistory {
+  id        String   @id @default(cuid())
+  year      Int
+  total     Int
+  won       Int
+  lost      Int
+  ongoing   Int
+  valueWon  Decimal @db.Decimal(20, 0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([year])
+}
+
+enum ProjectStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+  BLOCKED
+  ON_HOLD
+}
+
+enum ProjectTaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  BLOCKED
+}
+
+enum ProjectCaseStatus {
+  OPEN
+  PENDING
+  RESOLVED
+  CLOSED
+}
+
+enum SalesTargetPeriod {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum TenderStatus {
+  WON
+  LOST
+  ONGOING
+  PENDING
+  SUBMITTED
+  IN_REVIEW
+}
+
+enum TrainingStatus {
+  IN_PROGRESS
+  COMPLETED
+  NOT_STARTED
+}
+
+enum EnablementRole {
+  SALES
+  SYSTEMS_ENGINEER
+}
+
+enum OemComplianceStatus {
+  ON_TRACK
+  PENDING
+  AT_RISK
+}
+
+enum OemAssignmentStatus {
+  EARNED
+  ONGOING
+  PENDING
 }

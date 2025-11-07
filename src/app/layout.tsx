@@ -56,7 +56,8 @@ const PROJECT_MENU_LINKS = [
 const SECONDARY_NAV = [
   { href: '/competency', label: 'Competency' },
   { href: '/finance', label: 'Finance' },
-  { href: '/sales-marketing', label: 'Sales & Marketing' },
+  { href: '/sales', label: 'Sales' },
+  { href: '/tenders', label: 'Tenders' },
   { href: '/project-history-trends', label: 'Project History & Trends' },
 ]
 

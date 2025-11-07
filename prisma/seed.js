@@ -187,6 +187,261 @@ const PROJECT_CASES = [
   { project: 'Network Upgrade', summary: 'Spare parts delivery delay', status: 'OPEN', openedAt: '2025-03-15' },
 ]
 
+const ENGINEERS = [
+  { name: 'Derick Lwelamila', role: 'Systems Engineer' },
+  { name: 'Sarah Johnson', role: 'Cloud Architect' },
+  { name: 'Johnson M.', role: 'Network Lead' },
+  { name: 'Adele Morris', role: 'Virtualization Specialist' },
+  { name: 'Sam Patel', role: 'Solutions Consultant' },
+]
+
+const ENGINEER_CERTIFICATIONS = [
+  {
+    engineer: 'Derick Lwelamila',
+    certification: 'VxRail Deploy',
+    vendor: 'Dell Technologies',
+    domain: 'HCI',
+    year: 2025,
+    expires: '2026-04-01',
+    status: 'Active',
+    statusDetail: 'Active - renew Apr 2026',
+    notExpiring: false,
+  },
+  {
+    engineer: 'Derick Lwelamila',
+    certification: 'PowerStore Implementation Engineer',
+    vendor: 'Dell Technologies',
+    domain: 'Storage',
+    year: 2025,
+    expires: '2025-11-20',
+    status: 'Expires Soon',
+    statusDetail: 'Expires Nov 2025',
+    notExpiring: false,
+  },
+  {
+    engineer: 'Sarah Johnson',
+    certification: 'Azure Solutions Architect Expert',
+    vendor: 'Microsoft',
+    domain: 'Cloud',
+    year: 2024,
+    expires: '2026-02-15',
+    status: 'Active',
+    statusDetail: 'Renew Feb 2026',
+    notExpiring: false,
+  },
+  {
+    engineer: 'Johnson M.',
+    certification: 'CCNP Enterprise',
+    vendor: 'Cisco',
+    domain: 'Networking',
+    year: 2023,
+    expires: '2025-07-01',
+    status: 'Expires Soon',
+    statusDetail: 'Renew July 2025',
+    notExpiring: false,
+  },
+  {
+    engineer: 'Adele Morris',
+    certification: 'VMware VCP-DCV',
+    vendor: 'VMware',
+    domain: 'Virtualization',
+    year: 2024,
+    expires: '2025-09-30',
+    status: 'Active',
+    statusDetail: 'Healthy coverage',
+    notExpiring: false,
+  },
+  {
+    engineer: 'Sam Patel',
+    certification: 'AWS Solutions Architect Professional',
+    vendor: 'AWS',
+    domain: 'Cloud',
+    year: 2023,
+    expires: '2025-12-10',
+    status: 'Active',
+    statusDetail: 'Renew Dec 2025',
+    notExpiring: false,
+  },
+]
+
+const OEM_COMPLIANCE_TRACKS = [
+  {
+    oem: 'Dell Technologies',
+    specialization: 'Storage Deployment',
+    requiredCerts: 6,
+    overallRequirement: 10,
+    targetDate: '2025-12-01',
+    complianceStatus: 'PENDING',
+    roadmapNotes: 'Focus on PowerStore implementation and storage modernization deliverables.',
+  },
+  {
+    oem: 'Cisco',
+    specialization: 'Enterprise Networking',
+    requiredCerts: 5,
+    overallRequirement: 8,
+    targetDate: '2025-09-15',
+    complianceStatus: 'AT_RISK',
+    roadmapNotes: 'Mitigate CCNP renewals expiring in Q3 and align with network upgrade project.',
+  },
+  {
+    oem: 'Microsoft',
+    specialization: 'Cloud Architecture',
+    requiredCerts: 4,
+    overallRequirement: 6,
+    targetDate: '2025-11-30',
+    complianceStatus: 'ON_TRACK',
+    roadmapNotes: 'Extend Azure Solution Architect coverage and align with hybrid cloud roadmap.',
+  },
+]
+
+const OEM_COMPLIANCE_ASSIGNMENTS = [
+  {
+    oem: 'Dell Technologies',
+    specialization: 'Storage Deployment',
+    engineer: 'Derick Lwelamila',
+    certificationName: 'PowerStore Implementation Engineer',
+    status: 'EARNED',
+    startedAt: '2025-01-10',
+    completedAt: '2025-03-18',
+    dueAt: '2025-05-01',
+    vendor: 'Dell Technologies',
+  },
+  {
+    oem: 'Dell Technologies',
+    specialization: 'Storage Deployment',
+    engineer: 'Adele Morris',
+    certificationName: 'PowerScale Concepts',
+    status: 'ONGOING',
+    startedAt: '2025-02-05',
+    dueAt: '2025-06-10',
+    vendor: 'Dell Technologies',
+  },
+  {
+    oem: 'Dell Technologies',
+    specialization: 'Storage Deployment',
+    engineer: 'Sam Patel',
+    certificationName: 'PowerStore Implementation Engineer',
+    status: 'PENDING',
+    dueAt: '2025-08-01',
+    vendor: 'Dell Technologies',
+  },
+  {
+    oem: 'Cisco',
+    specialization: 'Enterprise Networking',
+    engineer: 'Johnson M.',
+    certificationName: 'CCNP Enterprise',
+    status: 'ONGOING',
+    startedAt: '2025-03-01',
+    dueAt: '2025-07-01',
+    vendor: 'Cisco',
+  },
+  {
+    oem: 'Cisco',
+    specialization: 'Enterprise Networking',
+    engineer: 'Sam Patel',
+    certificationName: 'Cisco SD-WAN Specialist',
+    status: 'PENDING',
+    dueAt: '2025-09-30',
+    vendor: 'Cisco',
+  },
+  {
+    oem: 'Microsoft',
+    specialization: 'Cloud Architecture',
+    engineer: 'Sarah Johnson',
+    certificationName: 'Azure Solutions Architect Expert',
+    status: 'EARNED',
+    startedAt: '2024-10-01',
+    completedAt: '2025-01-20',
+    dueAt: '2025-02-15',
+    vendor: 'Microsoft',
+  },
+  {
+    oem: 'Microsoft',
+    specialization: 'Cloud Architecture',
+    engineer: 'Sam Patel',
+    certificationName: 'Azure Administrator Associate',
+    status: 'ONGOING',
+    startedAt: '2025-01-25',
+    dueAt: '2025-05-30',
+    vendor: 'Microsoft',
+  },
+]
+
+const TRAINING_PLANS = [
+  {
+    engineer: 'Derick Lwelamila',
+    vendor: 'Dell Technologies',
+    module: 'PowerScale Concepts',
+    domain: 'Storage',
+    progressPercent: 65,
+    timeline: '2 weeks',
+    status: 'IN_PROGRESS',
+  },
+  {
+    engineer: 'Johnson M.',
+    vendor: 'VMware',
+    module: 'vSphere Installation',
+    domain: 'Virtualization',
+    progressPercent: 30,
+    timeline: '4 weeks',
+    status: 'IN_PROGRESS',
+  },
+  {
+    engineer: 'Sarah Johnson',
+    vendor: 'Microsoft',
+    module: 'Azure Fundamentals',
+    domain: 'Cloud',
+    progressPercent: 100,
+    timeline: 'Completed',
+    status: 'COMPLETED',
+  },
+]
+
+const SALES_LEADS = [
+  {
+    name: 'Alex Johnson',
+    company: 'Tech Solutions Inc.',
+    email: 'alex.j@company.com',
+    phone: '+255-700-111-222',
+  manager: 'Wilbard Mkoba',
+    status: 'New Lead',
+    estimatedValue: 75000,
+    probability: 20,
+    sector: 'Private Enterprise',
+    region: 'Dar es Salaam',
+    source: 'Referral',
+    notes: 'Initial discovery call complete. Awaiting requirements pack.',
+  },
+  {
+    name: 'Maria Garcia',
+    company: 'Enterprise Global',
+    email: 'maria.g@enterprise.com',
+    phone: '+255-700-333-444',
+  manager: 'Irfan Jaffer',
+    status: 'Qualified',
+    estimatedValue: 150000,
+    probability: 50,
+    sector: 'FSI (Banking/Insurance)',
+    region: 'Dodoma',
+    source: 'OEM Partner Lead (Microsoft/Cisco/Huawei/Fortinet)',
+    notes: 'Security architecture review pending.',
+  },
+  {
+    name: 'Robert Smith',
+    company: 'Innovate Labs',
+    email: 'robert.s@innovate.co',
+    phone: '+255-700-555-666',
+  manager: 'Wilbard Mkoba',
+    status: 'Proposal',
+    estimatedValue: 200000,
+    probability: 80,
+    sector: 'Technology',
+    region: 'Arusha',
+    source: 'LinkedIn / Social',
+    notes: 'Proposal sent 10 Oct, waiting for commercial feedback.',
+  },
+]
+
 async function ensureEnvironment(organizationId, name = 'HQ') {
   const existing = await prisma.environment.findFirst({
     where: { organizationId, name },
@@ -436,6 +691,235 @@ async function seedProjectData() {
   }
 }
 
+async function seedSalesData() {
+  for (const lead of SALES_LEADS) {
+    await prisma.salesLead.upsert({
+      where: {
+        name_company: {
+          name: lead.name,
+          company: lead.company,
+        },
+      },
+      update: {
+        email: lead.email ?? null,
+        phone: lead.phone ?? null,
+        manager: lead.manager ?? null,
+        status: lead.status ?? 'New Lead',
+        estimatedValue: lead.estimatedValue ?? null,
+        probability: lead.probability ?? null,
+        sector: lead.sector ?? null,
+        region: lead.region ?? null,
+        source: lead.source ?? null,
+        notes: lead.notes ?? null,
+      },
+      create: {
+        name: lead.name,
+        company: lead.company,
+        email: lead.email ?? null,
+        phone: lead.phone ?? null,
+        manager: lead.manager ?? null,
+        status: lead.status ?? 'New Lead',
+        estimatedValue: lead.estimatedValue ?? null,
+        probability: lead.probability ?? null,
+        sector: lead.sector ?? null,
+        region: lead.region ?? null,
+        source: lead.source ?? null,
+        notes: lead.notes ?? null,
+      },
+    })
+  }
+}
+
+async function seedCompetencyData() {
+  const engineerRecords = {}
+  for (const engineer of ENGINEERS) {
+    engineerRecords[engineer.name] = await prisma.engineer.upsert({
+      where: { name: engineer.name },
+      update: {
+        role: engineer.role ?? null,
+      },
+      create: {
+        name: engineer.name,
+        role: engineer.role ?? null,
+      },
+    })
+  }
+
+  const certificationRecords = {}
+  for (const cert of ENGINEER_CERTIFICATIONS) {
+    const engineer = engineerRecords[cert.engineer]
+    if (!engineer) continue
+
+    const expires = cert.expires ? new Date(cert.expires) : null
+
+    const record = await prisma.engineerCertification.upsert({
+      where: {
+        engineerId_certification_vendor: {
+          engineerId: engineer.id,
+          certification: cert.certification,
+          vendor: cert.vendor,
+        },
+      },
+      update: {
+        domain: cert.domain ?? null,
+        year: cert.year ?? null,
+        expires,
+        status: cert.status,
+        statusDetail: cert.statusDetail ?? null,
+        notExpiring: Boolean(cert.notExpiring),
+      },
+      create: {
+        engineerId: engineer.id,
+        certification: cert.certification,
+        vendor: cert.vendor,
+        domain: cert.domain ?? null,
+        year: cert.year ?? null,
+        expires,
+        status: cert.status,
+        statusDetail: cert.statusDetail ?? null,
+        notExpiring: Boolean(cert.notExpiring),
+      },
+    })
+
+    const key = `${engineer.name}::${cert.certification}::${cert.vendor}`
+    certificationRecords[key] = record
+  }
+
+  const trackEarnedCounts = {}
+  for (const assignment of OEM_COMPLIANCE_ASSIGNMENTS) {
+    if (assignment.status !== 'EARNED') continue
+    const key = `${assignment.oem}::${assignment.specialization}`
+    trackEarnedCounts[key] = (trackEarnedCounts[key] ?? 0) + 1
+  }
+
+  const trackRecords = {}
+  for (const track of OEM_COMPLIANCE_TRACKS) {
+    const key = `${track.oem}::${track.specialization}`
+    const earned = trackEarnedCounts[key] ?? 0
+    const targetDate = track.targetDate ? new Date(track.targetDate) : null
+    trackRecords[key] = await prisma.oemComplianceTrack.upsert({
+      where: {
+        oem_specialization: {
+          oem: track.oem,
+          specialization: track.specialization,
+        },
+      },
+      update: {
+        requiredCerts: track.requiredCerts,
+        earnedCerts: earned,
+        overallRequirement: track.overallRequirement,
+        overallEarned: Math.min(track.overallRequirement, earned),
+        complianceStatus: track.complianceStatus,
+        targetDate,
+        roadmapNotes: track.roadmapNotes ?? null,
+      },
+      create: {
+        oem: track.oem,
+        specialization: track.specialization,
+        requiredCerts: track.requiredCerts,
+        earnedCerts: earned,
+        overallRequirement: track.overallRequirement,
+        overallEarned: Math.min(track.overallRequirement, earned),
+        complianceStatus: track.complianceStatus,
+        targetDate,
+        roadmapNotes: track.roadmapNotes ?? null,
+      },
+    })
+  }
+
+  for (const assignment of OEM_COMPLIANCE_ASSIGNMENTS) {
+    const trackKey = `${assignment.oem}::${assignment.specialization}`
+    const track = trackRecords[trackKey]
+    const engineer = engineerRecords[assignment.engineer]
+    if (!track || !engineer) continue
+
+    const certKey = `${assignment.engineer}::${assignment.certificationName}::${assignment.vendor ?? assignment.oem}`
+    const certification = certificationRecords[certKey]
+
+    const startedAt = assignment.startedAt ? new Date(assignment.startedAt) : null
+    const completedAt = assignment.completedAt ? new Date(assignment.completedAt) : null
+    const dueAt = assignment.dueAt ? new Date(assignment.dueAt) : null
+
+    await prisma.oemComplianceAssignment.upsert({
+      where: {
+        trackId_engineerId_certificationName: {
+          trackId: track.id,
+          engineerId: engineer.id,
+          certificationName: assignment.certificationName,
+        },
+      },
+      update: {
+        status: assignment.status,
+        startedAt,
+        completedAt,
+        dueAt,
+        certificationId: certification?.id ?? null,
+      },
+      create: {
+        trackId: track.id,
+        engineerId: engineer.id,
+        certificationName: assignment.certificationName,
+        status: assignment.status,
+        startedAt,
+        completedAt,
+        dueAt,
+        certificationId: certification?.id ?? null,
+      },
+    })
+  }
+
+  for (const plan of TRAINING_PLANS) {
+    const engineer = engineerRecords[plan.engineer]
+    if (!engineer) continue
+
+    await prisma.engineerTraining.upsert({
+      where: {
+        engineerId_module: {
+          engineerId: engineer.id,
+          module: plan.module,
+        },
+      },
+      update: {
+        vendor: plan.vendor,
+        domain: plan.domain ?? null,
+        progressPercent: plan.progressPercent,
+        timeline: plan.timeline ?? null,
+        status: plan.status,
+      },
+      create: {
+        engineerId: engineer.id,
+        vendor: plan.vendor,
+        module: plan.module,
+        domain: plan.domain ?? null,
+        progressPercent: plan.progressPercent,
+        timeline: plan.timeline ?? null,
+        status: plan.status,
+      },
+    })
+  }
+
+  for (const trackKey of Object.keys(trackRecords)) {
+    const track = trackRecords[trackKey]
+    const aggregates = await prisma.oemComplianceAssignment.groupBy({
+      by: ['trackId', 'status'],
+      where: { trackId: track.id },
+      _count: { _all: true },
+    })
+
+    const earnedCount = aggregates
+      .filter((row) => row.status === 'EARNED')
+      .reduce((total, row) => total + row._count._all, 0)
+
+    await prisma.oemComplianceTrack.update({
+      where: { id: track.id },
+      data: {
+        earnedCerts: earnedCount,
+        overallEarned: Math.min(track.overallRequirement, earnedCount),
+      },
+    })
+  }
+}
+
 async function main() {
   for (const customer of CUSTOMERS) {
     const organization = await prisma.organization.upsert({
@@ -453,6 +937,8 @@ async function main() {
   }
 
   await seedProjectData()
+  await seedCompetencyData()
+  await seedSalesData()
 }
 
 main()
