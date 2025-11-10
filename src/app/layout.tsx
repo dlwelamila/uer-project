@@ -59,6 +59,7 @@ const SECONDARY_NAV = [
   { href: '/sales', label: 'Sales' },
   { href: '/tenders', label: 'Tenders' },
   { href: '/project-history-trends', label: 'Project History & Trends' },
+  { href: '/settings', label: 'Settings' },
 ]
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
